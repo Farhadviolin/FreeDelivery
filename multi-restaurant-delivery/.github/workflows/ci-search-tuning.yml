@@ -1,0 +1,20 @@
+name: CI Search Tuning
+on:
+  push:
+    paths:
+      - 'infra/terraform/es_*.tf'
+      - 'search/api.js'
+jobs:
+  deploy-search:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Terraform Init & Apply
+        run: |
+          cd infra/terraform
+          terraform init
+          terraform apply -auto-approve es_index.tf es_ngram.tf es_ilm.tf
+      - name: Deploy Search API
+        uses: azure/k8s-deploy@v4
+        with:
+          manifests: search/k8s/deployment.yaml

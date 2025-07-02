@@ -1,0 +1,10 @@
+{
+  "dashboard": {
+    "title": "Smart Kitchen IoT Overview",
+    "panels": [
+      {"type": "stat", "title": "Device Count", "targets": [{"expr": "aws_iot_connected_devices"}]},
+      {"type": "graph", "title": "Avg. Temperature", "targets": [{"rawSql": "SELECT mean(temperature) FROM SmartKitchenDB WHERE $__timeFilter(time) GROUP BY time(5m)", "format": "time_series"}]},
+      {"type": "alert", "title": "Temperature > Threshold", "targets": [{"expr": "aws_iot_temperature > 10"}]}
+    ]
+  }
+}

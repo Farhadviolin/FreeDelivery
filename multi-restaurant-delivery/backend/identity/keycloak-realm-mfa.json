@@ -1,0 +1,6 @@
+{
+  "authenticationExecutions": [
+    { "authenticator": "auth-otp-form", "requirement": "REQUIRED" },
+    { "authenticator": "auth-webauthn-authenticator", "requirement": "ALTERNATIVE" }
+  ]
+}

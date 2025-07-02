@@ -1,0 +1,16 @@
+# Istio VirtualService example for order-service
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: order-service
+spec:
+  hosts:
+    - order-service
+  gateways:
+    - order-gateway
+  http:
+    - route:
+        - destination:
+            host: order-service
+            port:
+              number: 80

@@ -1,0 +1,12 @@
+entities:
+  - name: user
+    join_keys: [user_id]
+features:
+  - name: user_total_orders
+    entity: user
+    ttl: 24h
+    transform: "COUNT(orders)"
+  - name: user_avg_order_value
+    entity: user
+    ttl: 24h
+    transform: "AVG(order_value)"

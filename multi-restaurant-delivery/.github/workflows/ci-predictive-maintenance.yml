@@ -1,0 +1,24 @@
+name: CI PredictiveMaintenance
+on: [push]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install & Test
+        run: |
+          pip install fastapi feast mlflow joblib pytest
+          pytest tests/test_prediction.py
+      - name: Build Docker & Push
+        run: |
+          docker build -t registry.delivery.com/pm-service:${{github.sha}} .
+          docker push registry.delivery.com/pm-service:${{github.sha}}
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+      - name: Deploy to K8s
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+        run: |
+          kubectl apply -f k8s/predictive-maintenance.yaml

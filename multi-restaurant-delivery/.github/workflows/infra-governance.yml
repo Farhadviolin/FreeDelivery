@@ -1,0 +1,31 @@
+name: Data Governance
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  atlas-provision:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Terraform Apply Atlas
+        run: terraform -chdir=infra apply -auto-approve -target=atlas_entity.postgres_db
+  pii-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run PII Scan
+        run: |
+          pip install boto3
+          python scripts/scan_pii.py
+  audit-dashboard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Import Audit Dashboard
+        run: |
+          curl -XPOST http://grafana:3000/api/dashboards/db \
+            -H "Content-Type: application/json" \
+            -d @grafana/audit_dashboard.json

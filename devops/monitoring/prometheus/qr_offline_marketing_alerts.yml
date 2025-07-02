@@ -1,0 +1,19 @@
+groups:
+- name: qr_offline_marketing
+  rules:
+    - alert: QRScanSpike
+      expr: sum(rate(qr_scan_total[5m])) > 100
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "QR-Scan Spike erkannt"
+        description: "Mehr als 100 Scans in 5 Minuten. Prüfe Kampagnen-Performance."
+    - alert: QRTrackingAPIUnavailable
+      expr: absent(up{job="tracking_api"} == 1)
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Tracking API nicht erreichbar"
+        description: "Die Tracking-API ist down oder liefert keine Metriken."

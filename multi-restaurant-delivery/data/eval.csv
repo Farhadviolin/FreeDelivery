@@ -1,0 +1,7 @@
+label,prediction,gender
+1,1,Male
+0,0,Female
+1,0,Male
+0,1,Female
+1,1,Female
+0,0,Male

@@ -1,0 +1,27 @@
+version: "3.0"
+intents:
+  - greet
+  - ask_menu
+  - place_order
+  - check_status
+entities:
+  - dish
+  - datetime
+slots:
+  dish:
+    type: text
+  datetime:
+    type: text
+responses:
+  utter_greet:
+    - text: "Hallo! Wie kann ich Ihnen helfen?"
+  utter_ask_dish:
+    - text: "Welches Gericht möchten Sie bestellen?"
+pipeline:
+  - name: WhitespaceTokenizer
+  - name: CountVectorsFeaturizer
+  - name: DIETClassifier
+  - name: EntitySynonymMapper
+policies:
+  - name: RulePolicy
+  - name: TEDPolicy

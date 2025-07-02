@@ -1,0 +1,35 @@
+name: CI Video Support
+on: [push]
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:7
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node & Python
+        run: |
+          npm install socket.io mediasoup
+          pip install flask selenium pytest
+      - name: Test Signaling Server
+        run: pytest tests/test_signal.py
+      - name: Test CoBrowse Service
+        run: pytest cobrowse/tests
+      - name: Build & Push Docker Images
+        run: |
+          docker build -t registry.delivery.com/signal-server:${{github.sha}} signal
+          docker push registry.delivery.com/signal-server:${{github.sha}}
+          docker build -t registry.delivery.com/media-worker:${{github.sha}} media
+          docker push registry.delivery.com/media-worker:${{github.sha}}
+          docker build -t registry.delivery.com/cobrowse:${{github.sha}} cobrowse
+          docker push registry.delivery.com/cobrowse:${{github.sha}}
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+      - name: Deploy to K8s
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+        run: |
+          kubectl apply -f k8s/video-deployment.yaml

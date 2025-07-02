@@ -1,0 +1,61 @@
+name: CI SCA & Dependency Management
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  dependabot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Dependabot Alerts
+        run: echo "Handled by Dependabot"
+
+  snyk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Node
+        uses: actions/setup-node@v3
+      - name: Install Dependencies
+        run: npm ci
+      - name: Run Snyk Test
+        uses: snyk/actions/node@master
+        with:
+          command: test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Snyk Monitor
+        uses: snyk/actions/node@master
+        with:
+          command: monitor
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+  audit-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Dependency Audit
+        run: npm audit --audit-level=high
+      - name: Fail on Vulnerabilities
+        run: |
+          if [ "$(npm audit --json | jq '.metadata.vulnerabilities.high + .metadata.vulnerabilities.critical')" -gt 0 ]; then
+            echo "Critical/High vulnerabilities found" >&2
+            exit 1
+          fi
+
+  alert-sca:
+    needs: [snyk]
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Slack
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          channel-id: ${{ secrets.SLACK_SCA_CHANNEL }}
+          slack-message: |
+            :warning: *SCA Scan Failure*  
+            Repository: `${{ github.repository }}`  
+            Commit: `${{ github.sha }}`  
+            Please review the SCA report. 

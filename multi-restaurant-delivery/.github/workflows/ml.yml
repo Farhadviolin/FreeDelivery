@@ -1,0 +1,21 @@
+name: CI Predictive Maintenance
+on:
+  push:
+    paths:
+      - 'ml/**'
+jobs:
+  train-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python & Train
+        run: |
+          pip install influxdb-client scikit-learn joblib
+          python - <<EOF
+          from ml.training import extract_features, train_model
+          extract_features(); train_model()
+          EOF
+      - name: Deploy Model & API
+        uses: azure/k8s-deploy@v4
+        with:
+          manifests: ml/k8s/api.yaml, ml/k8s/consumer.yaml

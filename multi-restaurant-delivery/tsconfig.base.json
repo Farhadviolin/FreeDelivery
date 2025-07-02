@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "module": "commonjs",
+    "strict": true,
+    "rootDir": ".",
+    "outDir": "dist",
+    "composite": true,
+    "skipLibCheck": true
+  },
+  "exclude": ["node_modules", "dist"]
+}

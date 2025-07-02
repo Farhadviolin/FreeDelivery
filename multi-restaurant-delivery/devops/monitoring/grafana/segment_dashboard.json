@@ -1,0 +1,9 @@
+{
+  "dashboard": {
+    "title": "Customer Segmentation",
+    "panels": [
+      { "type":"pie","title":"Segment Distribution","targets":[{"expr":"count by(segment) (segment_api_requests_total)"}] },
+      { "type":"bar","title":"Segment Prediction Latency","targets":[{"expr":"histogram_quantile(0.95, sum(rate(predict_request_duration_seconds_bucket[5m])) by (le) )"}] }
+    ]
+  }
+}

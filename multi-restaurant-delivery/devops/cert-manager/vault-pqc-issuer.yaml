@@ -1,0 +1,11 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: vault-pqc-issuer
+spec:
+  vault:
+    auth:
+      tokenSecretRef: { name: vault-token, key: token }
+    server: https://vault.delivery.local:8200
+    path: pki_int/sign/delivery-pqc
+    caBundle: <base64-CA>

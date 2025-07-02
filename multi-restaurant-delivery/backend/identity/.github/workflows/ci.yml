@@ -1,0 +1,11 @@
+jobs:
+  deploy-identity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy Keycloak
+        run: |
+          helm repo add codecentric https://codecentric.github.io/helm-charts
+          helm upgrade --install keycloak codecentric/keycloak -f helm/keycloak-values.yaml
+      - name: Import Realm
+        run: java -jar kcadm-client.jar import realms/realm-export.json

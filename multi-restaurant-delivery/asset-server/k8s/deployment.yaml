@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: asset-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: asset-server
+  template:
+    metadata:
+      labels:
+        app: asset-server
+    spec:
+      containers:
+        - name: assets
+          image: registry.delivery.com/asset-server:latest
+          ports:
+            - containerPort: 4000

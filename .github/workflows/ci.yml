@@ -1,0 +1,18 @@
+name: Dependency Audit Gate
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Dependency Audit
+        run: npm audit --audit-level=high
+      - name: Fail on Vulnerabilities
+        run: |
+          if [ "$(npm audit --json | jq '.metadata.vulnerabilities.high + .metadata.vulnerabilities.critical')" -gt 0 ]; then
+            echo "Critical/High vulnerabilities found" >&2
+            exit 1
+          fi 

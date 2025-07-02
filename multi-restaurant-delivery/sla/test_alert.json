@@ -1,0 +1,13 @@
+[
+  {
+    "labels": {
+      "alertname": "HighLatency",
+      "service": "payment-service"
+    },
+    "annotations": {
+      "summary": "Test",
+      "description": "Test"
+    },
+    "startsAt": "2025-07-01T00:00:00Z"
+  }
+]

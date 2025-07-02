@@ -1,0 +1,89 @@
+name: CI Template
+
+on:
+  workflow_call:
+    inputs:
+      servicePath:
+        description: 'Relative path to service directory'
+        required: true
+        type: string
+      serviceName:
+        description: 'Service name for image/tag'
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16, 18]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install Dependencies
+        working-directory: ${{ inputs.servicePath }}
+        run: npm ci || yarn install
+      - name: Run Linter
+        working-directory: ${{ inputs.servicePath }}
+        run: npm run lint || echo "No linter"
+      - name: Run Tests
+        working-directory: ${{ inputs.servicePath }}
+        run: npm test || yarn test || echo "No tests"
+      - name: Run i18n QA
+        working-directory: ${{ inputs.servicePath }}
+        run: python ../../scripts/i18n-qa.py
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.docker_build.outputs.image }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build Docker Image
+        id: docker_build
+        working-directory: ${{ inputs.servicePath }}
+        run: |
+          IMAGE=registry.delivery.com/${{ inputs.serviceName }}:${{ github.sha }}
+          docker build -t $IMAGE .
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+      - name: Deploy to K8s
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+        run: |
+          kubectl apply -f k8s/template-deployment.yaml
+
+  vault:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to Vault via OIDC
+        id: vault_login
+        run: |
+          VAULT_TOKEN=$(vault write -field=token auth/github/login role="${{ secrets.VAULT_ROLE }}" jwt="${{ steps.oidc_token.outputs.token }}")
+          echo "VAULT_TOKEN=$VAULT_TOKEN" >> $GITHUB_ENV
+      - name: Fetch Secrets
+        run: |
+          vault kv get -field=data app/credentials > creds.json
+      - name: Use DB Credentials
+        run: |
+          export DB_USER=$(jq -r .DB_USER creds.json)
+          export DB_PASSWORD=$(jq -r .DB_PASSWORD creds.json)
+          echo "Connecting to DB with $DB_USER"

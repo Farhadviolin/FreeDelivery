@@ -1,0 +1,19 @@
+# Prometheus metrics for Video Support
+
+# Counter für Sessions
+video_support_session_total 0
+
+# Histogramm für Session-Dauer
+video_support_session_duration_seconds_bucket{le="60"} 0
+video_support_session_duration_seconds_bucket{le="300"} 0
+video_support_session_duration_seconds_bucket{le="900"} 0
+
+# Counter für First-Call-Resolution
+video_support_fcr_total 0
+
+# Counter für Nutzerzufriedenheit (z.B. 1-5 Sterne)
+video_support_satisfaction_total{rating="5"} 0
+video_support_satisfaction_total{rating="4"} 0
+video_support_satisfaction_total{rating="3"} 0
+video_support_satisfaction_total{rating="2"} 0
+video_support_satisfaction_total{rating="1"} 0

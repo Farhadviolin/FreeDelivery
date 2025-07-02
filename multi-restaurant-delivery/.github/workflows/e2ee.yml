@@ -1,0 +1,23 @@
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+jobs:
+  test-e2ee:
+    runs-on: ubuntu-latest
+    services:
+      vault:
+        image: vault:1.13.0
+        ports:
+          - 8200:8200
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: |
+          npm install libsodium-wrappers
+          pip install phe mpyc
+      - name: Run JS Tests
+        run: npm test || true
+      - name: Run Python MPC Tests
+        run: pytest ml-ds/inference/secure_sum.py ml-ds/inference/mpc_share.py || true

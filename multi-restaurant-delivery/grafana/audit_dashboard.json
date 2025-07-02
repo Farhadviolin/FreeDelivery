@@ -1,0 +1,22 @@
+{
+  "dashboard": {
+    "title": "Audit & Data Governance",
+    "panels": [
+      {
+        "type": "logs",
+        "title": "Access Logs",
+        "targets": [{ "expr": "{job=\"postgres\"}" }]
+      },
+      {
+        "type": "table",
+        "title": "PII Scan Results",
+        "targets": [{ "expr": "macie_pii_findings_total" }]
+      },
+      {
+        "type": "table",
+        "title": "Atlas Entities",
+        "targets": [{ "expr": "atlas_entities_total" }]
+      }
+    ]
+  }
+}

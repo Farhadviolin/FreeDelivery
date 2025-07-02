@@ -1,0 +1,29 @@
+name: CI Fraud Detection
+on:
+  push:
+    paths:
+      - 'flink/**'
+      - 'airflow/**'
+      - 'fraud_service/**'
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python & ML Tools
+        run: pip install feast mlflow xgboost pytest pyflink redis
+      - name: Run Airflow DAG Test
+        run: pytest airflow/tests
+      - name: Test Fraud Service
+        run: pytest fraud_service/tests
+      - name: Deploy Services
+        uses: delivery/k8s-deploy@v1
+        with:
+          manifests: |
+            flink/k8s/jobmanager.yaml
+            fraud_service/k8s/deployment.yaml
+      - name: Import Grafana Dashboard
+        run: |
+          curl -XPOST http://grafana:3000/api/dashboards/db \
+            -H "Content-Type: application/json" \
+            -d @grafana/fraud_dashboard.json

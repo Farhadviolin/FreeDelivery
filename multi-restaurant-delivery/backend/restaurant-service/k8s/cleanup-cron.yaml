@@ -1,0 +1,15 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cleanup-tasks
+spec:
+  schedule: '0 3 * * *'
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: cleanup
+              image: registry.delivery.com/task-worker:latest
+              command: ['node', 'scripts/cleanup.js']
+          restartPolicy: OnFailure

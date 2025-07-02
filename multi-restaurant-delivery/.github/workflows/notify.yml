@@ -1,0 +1,21 @@
+name: CI Notification Service
+on:
+  push:
+    paths:
+      - 'notification/**'
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python & Node
+        run: |
+          pip install fastapi uvicorn bullmq pydantic
+          npm ci --prefix notification
+      - name: Test API
+        run: |
+          pytest notification/tests
+      - name: Deploy Service
+        uses: azure/k8s-deploy@v4
+        with:
+          manifests: notification/k8s/api-deployment.yaml,notification/k8s/worker-deployment.yaml

@@ -1,0 +1,12 @@
+{
+  "dashboard": {
+    "title": "Worker Queue Monitoring",
+    "panels": [
+      {"type": "stat", "title": "Active Tasks", "targets": [{"expr": "celery_active_tasks"}]},
+      {"type": "stat", "title": "Reserved Tasks", "targets": [{"expr": "celery_reserved_tasks"}]},
+      {"type": "graph", "title": "Task Throughput", "targets": [{"expr": "rate(celery_active_tasks[5m])"}]},
+      {"type": "stat", "title": "Failed Tasks", "targets": [{"expr": "sum(increase(celery_failed_tasks_total[1h]))"}]},
+      {"type": "stat", "title": "DLQ Length", "targets": [{"expr": "redis_queue_length{queue=\"dead_letter\"}"}]}
+    ]
+  }
+}

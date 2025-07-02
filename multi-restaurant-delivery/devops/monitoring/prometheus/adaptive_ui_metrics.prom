@@ -1,0 +1,15 @@
+# Prometheus metrics for Adaptive UI
+
+# Counter für Impressionen pro Layout-Variante
+adaptive_ui_impression_total{layout="grid"} 0
+adaptive_ui_impression_total{layout="list"} 0
+
+# Counter für Klicks auf Empfehlungen pro Layout
+adaptive_ui_recommendation_click_total{layout="grid"} 0
+adaptive_ui_recommendation_click_total{layout="list"} 0
+
+# Histogramm für Interaktionsdauer
+adaptive_ui_interaction_seconds_bucket{layout="grid",le="5"} 0
+adaptive_ui_interaction_seconds_bucket{layout="grid",le="10"} 0
+adaptive_ui_interaction_seconds_bucket{layout="list",le="5"} 0
+adaptive_ui_interaction_seconds_bucket{layout="list",le="10"} 0

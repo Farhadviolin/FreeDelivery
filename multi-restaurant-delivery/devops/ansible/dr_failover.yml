@@ -1,0 +1,21 @@
+---
+- name: Disaster Recovery Failover
+  hosts: localhost
+  gather_facts: false
+  vars:
+    region_primary: eu-central-1
+    region_secondary: eu-west-1
+  tasks:
+    - name: Set Route53 record to secondary
+      community.aws.route53:
+        zone: delivery.com
+        record: api.delivery.com
+        type: A
+        value: "{{ lookup('aws_lb', 'api_b') }}"
+        failover: SECONDARY
+        state: present
+    - name: Notify team
+      mail:
+        to: devops@delivery.com
+        subject: "Failover durchgeführt"
+        body: "API-Traffic wurde auf Region B umgeschaltet."

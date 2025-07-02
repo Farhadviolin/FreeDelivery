@@ -1,0 +1,21 @@
+{
+  "name": "xr-web",
+  "version": "1.0.0",
+  "main": "App.tsx",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "jest"
+  },
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "@react-three/fiber": "^8.0.0",
+    "@react-three/drei": "^9.122.0",
+    "three": "^0.158.0",
+    "aframe": "^1.4.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  }
+}

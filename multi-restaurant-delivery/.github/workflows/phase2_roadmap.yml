@@ -1,0 +1,13 @@
+on:
+  push:
+    tags:
+      - 'v1.0'
+
+jobs:
+  create-roadmap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Create Phase 2 Roadmap Epic
+        run: |
+          echo "Jira CLI: create epic --project DEL --summary 'Phase 2 Roadmap – Delivery System' --description-file docs/roadmap_phase2.md"

@@ -1,0 +1,15 @@
+name: FinOps Policy
+on:
+  push:
+    paths:
+      - 'scripts/**'
+      - 'airflow/dags/finops_reporting.py'
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Lint Python Scripts
+        run: |
+          pip install pylint pandas boto3 sqlalchemy
+          pylint scripts/finops_*.py

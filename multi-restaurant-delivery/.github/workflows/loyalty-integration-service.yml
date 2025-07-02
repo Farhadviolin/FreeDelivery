@@ -1,0 +1,12 @@
+name: CI/CD Loyalty Integration
+on:
+  push:
+    paths:
+      - 'backend/loyalty-integration-service/**'
+    branches: [ main ]
+jobs:
+  ci:
+    uses: ./.github/workflows/ci-template.yml
+    with:
+      servicePath: 'backend/loyalty-integration-service'
+      serviceName: 'loyalty-integration-service'

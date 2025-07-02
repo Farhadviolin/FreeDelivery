@@ -1,0 +1,22 @@
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+jobs:
+  test-remediation:
+    runs-on: ubuntu-latest
+    services:
+      kind:
+        image: kindest/node:v1.27.0
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy Kind Cluster & Prometheus
+        run: |
+          kind create cluster
+          kubectl apply -f devops/monitoring/self_healing_alerts.yaml || true
+      - name: Test Alert → Remediation
+        run: |
+          kubectl run crash --image=busybox --restart=Never -- /bin/sh -c "exit 1"
+          sleep 30
+          kubectl get pod crash || echo "Pod removed"

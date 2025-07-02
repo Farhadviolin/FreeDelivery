@@ -1,0 +1,19 @@
+groups:
+- name: executive_dashboard
+  rules:
+    - alert: DashboardReportJobFailed
+      expr: increase(report_job_failures_total[5m]) > 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Executive Report Job failed in the last 5 minutes"
+        description: "Check the logs of the report generator service."
+    - alert: KPIDataMissing
+      expr: absent(KPIs_totalOrders)
+      for: 10m
+      labels:
+        severity: warning
+      annotations:
+        summary: "No KPI data received in the last 10 minutes"
+        description: "Check ETL/dbt and Cube.js health."

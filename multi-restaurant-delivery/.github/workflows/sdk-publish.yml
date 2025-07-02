@@ -1,0 +1,28 @@
+name: Publish SDKs
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+jobs:
+  generate-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup OpenAPI Generator
+        run: npm install @openapitools/openapi-generator-cli -g
+      - name: Generate SDKs
+        run: bash scripts/generate-sdks.sh
+      - name: Publish JS SDK
+        run: |
+          cd sdks/js
+          npm publish --access public
+      - name: Publish Python SDK
+        run: |
+          cd sdks/py
+          python -m pip install --upgrade build twine
+          python -m build
+          twine upload dist/*
+      - name: Publish Java SDK
+        run: |
+          cd sdks/java
+          ./mvnw deploy -DskipTests

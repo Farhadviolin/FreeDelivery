@@ -1,0 +1,22 @@
+name: E2E Reporting
+on:
+  workflow_run:
+    workflows: ["E2E Tests"]
+    types:
+      - completed
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: allure-results
+          path: ./allure-results
+      - name: Generate Allure Report
+        run: npx allure generate ./allure-results --clean -o ./allure-report
+      - name: Publish Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: allure-report
+          path: ./allure-report

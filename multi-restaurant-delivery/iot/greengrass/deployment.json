@@ -1,0 +1,12 @@
+{
+  "targetArn": "arn:aws:iot:us-east-1:123456789012:thing/smart-kitchen-device",
+  "components": {
+    "aws.greengrass.Nucleus": { "version": "2.7.0", "configurationUpdate": {} },
+    "SmartKitchenApp": {
+      "componentVersion": "1.0.0",
+      "configurationUpdate": {
+        "merge": "{\"Runtime\":{\"artifacts\":{\"Image\":\"registry.delivery.com/iot-edge:latest\"}}}"
+      }
+    }
+  }
+}

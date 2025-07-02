@@ -1,0 +1,28 @@
+name: CI Conversational UX
+on: [push]
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    services:
+      rasa:
+        image: rasa/rasa:3.5.0-full
+        ports: ['5005:5005']
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python & Node
+        run: |
+          pip install fastapi requests pytest
+          npm install --prefix chat socket.io
+      - name: Test Voice Proxy
+        run: pytest voice/tests/test_voice_proxy.py
+      - name: Test Chat Server
+        run: npm test --prefix chat
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+      - name: Deploy to K8s
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+        run: |
+          kubectl apply -f k8s/conversational-ux.yaml

@@ -1,0 +1,19 @@
+groups:
+- name: fraud_detection
+  rules:
+    - alert: FraudScoreSpike
+      expr: sum(rate(fraud_alerts_total[5m])) > 5
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Fraud Alert Spike detected"
+        description: "Mehr als 5 Fraud-Alerts in 5 Minuten. Prüfe Order- und Payment-Logs."
+    - alert: FraudAPIUnavailable
+      expr: absent(up{job="fraud_service"} == 1)
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Fraud Scoring API nicht erreichbar"
+        description: "Der Fraud-Service ist down oder liefert keine Metriken."

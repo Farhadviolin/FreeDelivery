@@ -1,0 +1,4 @@
+apiVersion: v2
+name: edge-ai
+version: 0.1.0
+description: Edge AI Helm Chart

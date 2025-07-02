@@ -1,0 +1,21 @@
+# OpenTelemetry Collector Config for Multi-Restaurant-Delivery Platform
+# Receives OTLP traces, exports to Jaeger and Tempo
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+exporters:
+  jaeger:
+    endpoint: jaeger:14250
+    tls:
+      insecure: true
+  otlp:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [jaeger, otlp]

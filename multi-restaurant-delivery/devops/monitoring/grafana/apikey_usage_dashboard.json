@@ -1,0 +1,21 @@
+{
+  "dashboard": {
+    "title": "API-Key Usage & Quota",
+    "panels": [
+      {
+        "type": "table",
+        "title": "API-Key Usage",
+        "targets": [
+          { "expr": "devportal_apikey_usage" }
+        ]
+      },
+      {
+        "type": "graph",
+        "title": "API-Key Usage Over Time",
+        "targets": [
+          { "expr": "devportal_apikey_usage" }
+        ]
+      }
+    ]
+  }
+}

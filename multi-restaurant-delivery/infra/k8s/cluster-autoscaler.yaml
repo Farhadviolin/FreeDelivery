@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cluster-autoscaler
+  namespace: kube-system
+  labels: { app: cluster-autoscaler }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: cluster-autoscaler } }
+  template:
+    metadata:
+      labels: { app: cluster-autoscaler }
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+    spec:
+      serviceAccountName: cluster-autoscaler
+      containers:
+        - name: cluster-autoscaler
+          image: k8s.gcr.io/autoscaling/cluster-autoscaler:v1.27.1
+          command:
+            - ./cluster-autoscaler
+            - --cloud-provider=aws
+            - --nodes=3:10:ng-on-demand
+            - --nodes=1:20:ng-spot
+            - --balance-similar-node-groups
+            - --skip-nodes-with-system-pods=false
+            - --expander=least-waste

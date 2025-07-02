@@ -1,0 +1,11 @@
+groups:
+  - name: selfHealing
+    rules:
+      - alert: HighPodCrashLoop
+        expr: rate(kube_pod_container_status_restarts_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pod CrashLoop Detected"
+          description: "{{ $labels.namespace }}/{{ $labels.pod }} restarted >10% in 5m"

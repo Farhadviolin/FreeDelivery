@@ -1,0 +1,11 @@
+{
+  "dashboard": {
+    "title": "Predictive Maintenance Overview",
+    "panels": [
+      {"type": "stat", "title": "Anomalies (1h)", "targets": [{"expr": "sum(increase(pm_anomalies_total[1h]))"}]},
+      {"type": "graph", "title": "Engine Temp", "targets": [{"expr": "avg_over_time(engine_temp[1h])"}]},
+      {"type": "graph", "title": "Vibration", "targets": [{"expr": "avg_over_time(vibration[1h])"}]},
+      {"type": "stat", "title": "Vehicles at Risk", "targets": [{"expr": "count(pm_anomalies_total{severity=\"critical\"})"}]}
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+name: Alert SCA Findings
+on:
+  workflow_run:
+    workflows: ["Snyk Security Scan"]
+    types: [completed]
+jobs:
+  alert:
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Slack
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          channel-id: ${{ secrets.SLACK_SCA_CHANNEL }}
+          slack-message: |
+            :warning: *SCA Scan Failure*  
+            Repository: `${{ github.repository }}`  
+            Commit: `${{ github.sha }}`  
+            Please review the SCA report.  

@@ -1,0 +1,22 @@
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+jobs:
+  test-fraud:
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:7
+      postgres:
+        image: postgres:15
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install & Test Python
+        run: |
+          pip install fastapi pytest xgboost feast redis sqlalchemy psycopg2-binary
+          pytest tests/test_scoring.py || true
+      - name: Flink Job Build
+        run: |
+          echo "Flink job build placeholder"

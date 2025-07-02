@@ -1,0 +1,28 @@
+name: CI QR Service & Landing
+on:
+  push:
+    paths:
+      - 'qr-service/**'
+      - 'landing/**'
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node & Test QR Service
+        run: |
+          cd qr-service
+          npm ci
+          npm test
+      - name: Setup React & Test Landing
+        run: |
+          cd landing
+          npm ci
+          npm test
+      - name: Deploy Services
+        uses: azure/k8s-deploy@v4
+        with:
+          manifests: qr-service/k8s/deployment.yaml, landing/k8s/deployment.yaml

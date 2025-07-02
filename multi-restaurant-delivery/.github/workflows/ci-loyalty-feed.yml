@@ -1,0 +1,38 @@
+name: CI Loyalty & Feed
+on:
+  push:
+    paths:
+      - 'loyalty/**'
+      - 'feed/**'
+      - 'frontend/src/components/Feed.tsx'
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+      redis:
+        image: redis:7
+      kafka:
+        image: confluentinc/cp-kafka:7.4.0
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup & Test Loyalty
+        run: |
+          pip install nestjs-typeorm pytest
+          cd loyalty && pytest
+      - name: Setup & Test Feed
+        run: |
+          pip install fastapi pytest redis
+          cd feed && pytest
+      - name: Build Frontend
+        run: |
+          npm ci --prefix frontend
+          npm test --prefix frontend
+      - name: Deploy Services
+        uses: azure/k8s-deploy@v4
+        with:
+          manifests: |
+            loyalty/k8s
+            feed/k8s
+            frontend/k8s

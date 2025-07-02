@@ -1,0 +1,7 @@
+filebeat.inputs:
+  - type: log
+    paths:
+      - /var/log/postgresql/*.log
+      - /var/log/app/*.log
+output.elasticsearch:
+  hosts: ["elk:9200"]

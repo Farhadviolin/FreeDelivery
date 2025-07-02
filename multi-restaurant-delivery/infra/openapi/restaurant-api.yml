@@ -1,0 +1,43 @@
+openapi: '3.1.0'
+info:
+  title: Restaurant API
+  version: '1.0.0'
+servers:
+  - url: http://localhost:4000
+paths:
+  /restaurants:
+    get:
+      summary: Liste aller Restaurants
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Restaurant'
+  /restaurants/{id}:
+    get:
+      summary: Restaurant-Details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Restaurant'
+components:
+  schemas:
+    Restaurant:
+      type: object
+      properties:
+        id:   { type: string }
+        name: { type: string }
+        description: { type: string }
+        imageUrl:    { type: string }

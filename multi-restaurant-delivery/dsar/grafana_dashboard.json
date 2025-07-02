@@ -1,0 +1,17 @@
+{
+  "title": "DSAR Monitoring",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Offene DSAR Requests",
+      "targets": [{"expr": "dsar_requests_pending"}],
+      "fieldConfig": {"defaults": {"unit": "none"}}
+    },
+    {
+      "type": "stat",
+      "title": "DSAR Export Fehler",
+      "targets": [{"expr": "dsar_export_failures"}],
+      "fieldConfig": {"defaults": {"unit": "none"}}
+    }
+  ]
+}

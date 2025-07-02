@@ -1,0 +1,26 @@
+{
+  "title": "Edge AI & Inference Overview",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Active Edge Devices",
+      "targets": [{"expr": "count(edge_inference_latency_seconds)"}]
+    },
+    {
+      "type": "histogram",
+      "title": "Inference Latency (s)",
+      "targets": [{"expr": "edge_inference_latency_seconds_bucket"}]
+    },
+    {
+      "type": "stat",
+      "title": "Model Version Distribution",
+      "targets": [{"expr": "count by (model) (edge_inference_latency_seconds)"}]
+    },
+    {
+      "type": "stat",
+      "title": "Failed Inferences",
+      "targets": [{"expr": "edge_inference_failed_total"}]
+    }
+  ],
+  "time": {"from": "now-24h", "to": "now"}
+}

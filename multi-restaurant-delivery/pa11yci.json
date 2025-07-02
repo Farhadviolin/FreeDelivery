@@ -1,0 +1,5 @@
+{
+  "url": ["http://localhost:6006/iframe.html?id=components-button--primary"],
+  "standard": "WCAG3AAA",
+  "timeout": 30000
+}

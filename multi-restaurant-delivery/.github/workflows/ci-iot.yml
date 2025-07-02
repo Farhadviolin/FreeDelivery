@@ -1,0 +1,18 @@
+name: CI IoT Infrastructure
+on:
+  push:
+    paths:
+      - 'iot/**'
+jobs:
+  deploy-iot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Terraform Init & Apply
+        run: |
+          cd iot/terraform
+          terraform init
+          terraform apply -auto-approve iot.tf
+      - name: Deploy Greengrass
+        run: |
+          aws greengrassv2 create-deployment --cli-input-json file://iot/greengrass/deployment.json

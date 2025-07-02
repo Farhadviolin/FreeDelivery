@@ -1,0 +1,12 @@
+fastapi
+sqlalchemy
+fairlearn
+evidently
+great_expectations
+pytest
+coverage
+bandit
+flake8
+black
+isort
+mypy

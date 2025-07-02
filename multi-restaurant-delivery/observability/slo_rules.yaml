@@ -1,0 +1,19 @@
+groups:
+  - name: service-slos
+    rules:
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.01
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Error rate >1% for service {{ $labels.service }}"
+          description: "The 5xx error rate has exceeded 1% for over 2 minutes."
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le,service)) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "p95 latency >500ms for {{ $labels.service }}"
+          description: "The 95th percentile latency has exceeded 500ms for over 5 minutes."

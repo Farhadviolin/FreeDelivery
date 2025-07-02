@@ -1,0 +1,18 @@
+# Infracost GitHub Actions workflow example
+name: Infracost
+on:
+  pull_request:
+    paths:
+      - 'devops/terraform/**'
+jobs:
+  infracost:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Infracost
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/infracost/infracost/master/scripts/install.sh | sh
+      - name: Run Infracost breakdown
+        run: infracost breakdown --path=devops/terraform --format=json --out-file=/tmp/infracost.json
+      - name: Show Infracost output
+        run: cat /tmp/infracost.json

@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity-aware-proxy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: identity-aware-proxy
+  template:
+    metadata:
+      labels:
+        app: identity-aware-proxy
+    spec:
+      containers:
+        - name: iap
+          image: gcr.io/gcp-iap/identity-aware-proxy:latest
+          env:
+            - name: OIDC_ISSUER
+              value: "https://keycloak.delivery.com/realms/delivery"
+            - name: OIDC_CLIENT_ID
+              value: "web-portal"
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: iap-secrets
+                  key: client-secret
+          ports:
+            - containerPort: 8080

@@ -1,0 +1,12 @@
+{
+  "service": {
+    "name": "order-service",
+    "tags": ["api"],
+    "port": 4000,
+    "check": {
+      "http": "https://localhost:4000/health",
+      "interval": "10s",
+      "timeout": "1s"
+    }
+  }
+}

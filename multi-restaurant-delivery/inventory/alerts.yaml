@@ -1,0 +1,9 @@
+groups:
+  - name: inventory
+    rules:
+      - alert: LowStock
+        expr: stock_items_quantity{quantity_minus_reserved<10}
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Low stock for product {{ $labels.product_id }}"

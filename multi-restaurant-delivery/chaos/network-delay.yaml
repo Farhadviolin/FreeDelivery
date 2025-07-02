@@ -1,0 +1,13 @@
+apiVersion: chaosmesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: network-delay
+  namespace: delivery
+spec:
+  action: delay
+  mode: all
+  selector:
+    namespaces: ['delivery']
+  delay:
+    latency: '200ms'
+  duration: '1m'

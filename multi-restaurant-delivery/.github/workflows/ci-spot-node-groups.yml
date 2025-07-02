@@ -1,0 +1,24 @@
+name: CI Spot Node Groups
+on:
+  push:
+    paths:
+      - 'infra/terraform/eks_node_groups.tf'
+      - 'infra/k8s/cluster-autoscaler.yaml'
+      - 'apps/batch/deployment.yaml'
+      - 'infra/prometheus/spot_usage.rules.yaml'
+jobs:
+  deploy-spot-scaled:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Terraform Apply Node Groups
+        run: |
+          cd infra/terraform
+          terraform init
+          terraform apply -auto-approve eks_node_groups.tf
+      - name: Apply Cluster Autoscaler
+        run: kubectl apply -f infra/k8s/cluster-autoscaler.yaml
+      - name: Deploy Batch Worker
+        run: kubectl apply -f apps/batch/deployment.yaml
+      - name: Apply Prometheus Rules
+        run: kubectl apply -f infra/prometheus/spot_usage.rules.yaml -n monitoring

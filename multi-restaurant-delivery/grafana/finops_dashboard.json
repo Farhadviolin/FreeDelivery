@@ -1,0 +1,10 @@
+{
+  "dashboard": {
+    "title": "FinOps Overview",
+    "panels": [
+      { "type":"time_series","title":"Daily Cloud Spend","targets":[{"expr":"avg_over_time(finops_monthly_costs_blendedcost[1d])"}] },
+      { "type":"stat","title":"30-Day Total Spend","targets":[{"expr":"sum(finops_monthly_costs_blendedcost)"}] },
+      { "type":"table","title":"Unattached EBS Volumes","targets":[{"expr":"table_unattached_volumes"}] }
+    ]
+  }
+}

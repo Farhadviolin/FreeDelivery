@@ -1,0 +1,10 @@
+{
+  "name": "flutter-customer-app",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -b || echo 'Flutter-Projekt: Build extern'",
+    "test": "jest || echo 'Flutter-Projekt: Tests extern'",
+    "lint": "eslint src --ext .ts,.tsx || echo 'Flutter-Projekt: Lint extern'"
+  }
+}

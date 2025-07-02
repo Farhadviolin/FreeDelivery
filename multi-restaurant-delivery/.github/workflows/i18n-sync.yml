@@ -1,0 +1,50 @@
+name: Continuous Localization
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # täglich 02:00 UTC
+  workflow_dispatch:
+
+jobs:
+  extract-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install i18n-Scanner
+        run: npm install i18next-scanner --save-dev
+      - name: Extract Strings
+        run: npx i18next-scanner --config i18next-scanner.config.js
+      - name: Commit Extracted Keys
+        run: |
+          git config user.name "i18n-bot"
+          git config user.email "i18n@delivery.com"
+          git add locales/*
+          git commit -m "chore(i18n): extract new keys" || echo "No changes"
+          git push
+
+  upload-to-tms:
+    needs: extract-upload
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Crowdin CLI
+        run: npm install @crowdin/cli --save-dev
+      - name: Upload to Crowdin
+        run: npx crowdin upload sources
+
+  download-and-pr:
+    needs: upload-to-tms
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Crowdin CLI
+        run: npm install @crowdin/cli --save-dev
+      - name: Download Translations
+        run: npx crowdin download
+      - name: Create PR with Translations
+        uses: peter-evans/create-pull-request@v4
+        with:
+          commit-message: "chore(i18n): update translations"
+          branch: i18n/updates
+          title: "i18n: Übersetzungen aktualisiert"
+          body: "Automatisch generierte Übersetzungen aus Crowdin"

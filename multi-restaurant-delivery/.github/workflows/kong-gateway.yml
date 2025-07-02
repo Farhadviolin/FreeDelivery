@@ -1,0 +1,13 @@
+on:
+  push:
+    paths:
+      - 'k8s/kong-plugin.yaml'
+      - 'k8s/kong-api.yaml'
+jobs:
+  deploy-gateway:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dtzar/helm-kubectl@v1
+      - run: helm repo add kong https://charts.konghq.com
+      - run: helm upgrade --install kong kong/kong --version 3.3.0
+      - run: kubectl apply -f k8s/kong-plugin.yaml -f k8s/kong-api.yaml

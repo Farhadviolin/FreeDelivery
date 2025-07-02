@@ -1,0 +1,8 @@
+- hosts: aws
+  tasks:
+    - name: Replace on-demand with spot instances
+      ec2_asg:
+        name: my-asg
+        mixed_instances_policy:
+          instances_distribution:
+            spot_allocation_strategy: "capacity-optimized"

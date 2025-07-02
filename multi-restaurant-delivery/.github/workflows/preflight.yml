@@ -1,0 +1,18 @@
+on:
+  pull_request:
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: { service: [api, frontend, worker] }
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build & Lint
+        run: |
+          cd ${{ matrix.service }}
+          npm ci && npm run lint && npm test
+      - name: Build Docker
+        uses: docker/build-push-action@v3
+        with:
+          push: false
+          tags: build-only

@@ -1,0 +1,31 @@
+{
+  "realm": "delivery",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "web-portal",
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "redirectUris": ["https://web.delivery.com/*"]
+    },
+    {
+      "clientId": "mobile-app",
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "redirectUris": ["com.delivery.app://callback"]
+    },
+    {
+      "clientId": "service-mesh",
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "serviceAccountsEnabled": true
+    }
+  ],
+  "roles": {
+    "realm": [
+      {"name": "user"},
+      {"name": "service"},
+      {"name": "admin"}
+    ]
+  }
+}

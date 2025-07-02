@@ -1,0 +1,29 @@
+name: CI Segmentation & Campaign
+on:
+  push:
+    paths:
+      - 'ml/**'
+      - 'services/segment_api.py'
+      - 'services/campaign.py'
+jobs:
+  train-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python & Train
+        run: |
+          pip install scikit-learn xgboost mlflow psycopg2-binary
+          python - <<EOF
+          from ml.segmentation import train_segments, score_propensity
+          train_segments(); score_propensity()
+          EOF
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+      - name: Deploy APIs
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+        run: |
+          kubectl apply -f services/segment_api_k8s.yaml
+          kubectl apply -f services/campaign_k8s.yaml

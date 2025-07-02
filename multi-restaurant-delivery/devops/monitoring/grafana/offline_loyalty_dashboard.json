@@ -1,0 +1,29 @@
+{
+  "dashboard": {
+    "title": "Offline & Loyalty Monitoring",
+    "panels": [
+      {
+        "type": "graph",
+        "title": "Offline Orders Count",
+        "targets": [{ "expr": "offline_orders_count" }]
+      },
+      {
+        "type": "graph",
+        "title": "Sync Success Rate",
+        "targets": [
+          { "expr": "sum(sync_success_total) / sum(sync_attempt_total)" }
+        ]
+      },
+      {
+        "type": "graph",
+        "title": "Rewards Redeemed",
+        "targets": [{ "expr": "redeem_points_completed_total" }]
+      },
+      {
+        "type": "logs",
+        "title": "WebAPI Errors",
+        "targets": [{ "expr": "{job=\"nextjs-api\"} |= \"error\"" }]
+      }
+    ]
+  }
+}

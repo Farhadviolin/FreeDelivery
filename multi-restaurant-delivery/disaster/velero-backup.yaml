@@ -1,0 +1,14 @@
+apiVersion: velero.io/v1
+kind: Backup
+metadata:
+  name: daily-backup
+spec:
+  schedule: "0 2 * * *"
+  template:
+    includedNamespaces:
+      - delivery
+    includedResources:
+      - pods
+      - deployments
+      - services
+      - persistentvolumeclaims

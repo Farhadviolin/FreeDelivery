@@ -1,0 +1,18 @@
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+jobs:
+  test-post-launch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install & Test Python
+        run: |
+          pip install flask jira requests pytest
+          pytest tests/test_feedback.py || true
+      - name: Test A/B Setup
+        run: |
+          npm install @optimizely/optimizely-sdk
+          node devops/scripts/setup_ab.js

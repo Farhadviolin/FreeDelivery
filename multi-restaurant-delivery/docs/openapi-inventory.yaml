@@ -1,0 +1,42 @@
+openapi: 3.0.0
+info:
+  title: Inventory API
+  version: 1.0.0
+paths:
+  /adjust:
+    post:
+      summary: Adjust stock
+      parameters:
+        - in: query
+          name: product_id
+          schema:
+            type: string
+        - in: query
+          name: warehouse_id
+          schema:
+            type: string
+        - in: query
+          name: delta
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+  /reserve:
+    post:
+      summary: Reserve stock
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_id:
+                  type: string
+                warehouse_id:
+                  type: string
+                qty:
+                  type: integer
+      responses:
+        '200':
+          description: Reserved

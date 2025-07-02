@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 15s
+scrape_configs:
+  - job_name: 'fastapi-backend'
+    static_configs:
+      - targets: ['backend:8000']
+  - job_name: 'nodejs-frontend'
+    static_configs:
+      - targets: ['frontend:3000']

@@ -1,0 +1,19 @@
+{
+  "name": "landing",
+  "version": "1.0.0",
+  "main": "src/App.tsx",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "jest"
+  },
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^6.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "cypress": "^13.0.0"
+  }
+}

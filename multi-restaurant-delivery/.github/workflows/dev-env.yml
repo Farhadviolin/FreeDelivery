@@ -1,0 +1,9 @@
+on: [pull_request]
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
+      - run: terraform init infra/dev-env
+      - run: terraform apply -auto-approve infra/dev-env

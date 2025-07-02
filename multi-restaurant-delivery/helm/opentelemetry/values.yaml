@@ -1,0 +1,23 @@
+# Helm values for OpenTelemetry Collector, Jaeger, Tempo
+opentelemetry-collector:
+  configMap:
+    otel-collector-config.yaml
+  service:
+    type: ClusterIP
+    ports:
+      - name: otlp-grpc
+        port: 4317
+      - name: otlp-http
+        port: 4318
+jaeger:
+  enabled: true
+  agent:
+    enabled: true
+  collector:
+    enabled: true
+  query:
+    enabled: true
+tempo:
+  enabled: true
+  persistence:
+    enabled: false

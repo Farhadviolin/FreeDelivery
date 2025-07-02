@@ -1,0 +1,23 @@
+on:
+  push:
+    paths:
+      - 'k8s/fluentd-configmap.yaml'
+      - 'k8s/fluentd-daemonset.yaml'
+jobs:
+  lint-fluentd:
+    runs-on: ubuntu-latest
+    container: fluent/fluentd:v1.16
+    steps:
+      - uses: actions/checkout@v3
+      - run: fluentd --dry-run -c k8s/fluentd-configmap.yaml
+  deploy-logging:
+    needs: lint-fluentd
+    runs-on: ubuntu-latest
+    container: dtzar/helm-kubectl:latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: helm repo add grafana https://grafana.github.io/helm-charts
+      - run: helm upgrade --install loki grafana/loki --version 2.8.0
+      - run: helm upgrade --install grafana grafana/grafana --version 10.1.0
+      - run: kubectl apply -f k8s/fluentd-configmap.yaml
+      - run: kubectl apply -f k8s/fluentd-daemonset.yaml

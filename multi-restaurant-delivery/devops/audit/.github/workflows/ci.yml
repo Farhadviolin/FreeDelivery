@@ -1,0 +1,7 @@
+jobs:
+  compliance-logs:
+    runs-on: ubuntu-latest
+    steps:
+      - run: kubectl apply -f k8s/auditbeat-daemonset.yaml
+      - run: kubectl apply -f k8s/filebeat-daemonset.yaml
+      - run: kubectl apply -f k8s/logstash-pipeline.yaml

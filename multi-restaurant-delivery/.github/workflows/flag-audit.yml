@@ -1,0 +1,14 @@
+name: Flag Audit
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 2 * * *"
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm ci
+      - run: npx ts-node scripts/flag-audit.ts
+      - run: echo "Flag-Audit completed"

@@ -1,0 +1,16 @@
+{
+  "welcome": "Willkommen bei KiLiefer!",
+  "login": "Anmelden",
+  "logout": "Abmelden",
+  "register": "Registrieren",
+  "restaurants": "Restaurants",
+  "orders": "Bestellungen",
+  "cart": "Warenkorb",
+  "language": "Sprache",
+  "dark_mode": "Dunkler Modus",
+  "payment": "Zahlung",
+  "pay_now": "Jetzt zahlen",
+  "processing": "Verarbeite...",
+  "request_2fa": "2FA anfordern",
+  "verify_2fa": "2FA prüfen"
+}

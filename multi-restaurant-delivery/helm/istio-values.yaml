@@ -1,0 +1,6 @@
+global:
+  mTLS:
+    enabled: true
+values:
+  pilot:
+    traceSampling: 100.0

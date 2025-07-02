@@ -1,0 +1,16 @@
+name: CI Disaster Recovery
+on:
+  schedule:
+    - cron: '0 3 * * SUN'
+jobs:
+  dr-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Velero & Restic
+        run: |
+          curl -L https://github.com/vmware-tanzu/velero/releases/download/v1.10.0/velero-v1.10.0-linux-amd64.tar.gz | tar xz
+          sudo mv velero-v1.10.0-linux-amd64/velero /usr/local/bin/
+          curl -L https://github.com/restic/restic/releases/download/v0.15.0/restic_0.15.0_linux_amd64.bz2 | bunzip2 > restic && chmod +x restic && sudo mv restic /usr/local/bin/
+      - name: Run DR Test
+        run: bash disaster/dr_test.sh

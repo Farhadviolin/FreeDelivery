@@ -1,0 +1,15 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata: { name: pqc-gateway }
+spec:
+  selector: { istio: ingressgateway }
+  servers:
+    - port: { number: 443, name: https-pqc, protocol: HTTPS }
+      tls:
+        mode: SIMPLE
+        credentialName: delivery-pqc-cert
+        minProtocolVersion: TLSV1_3
+        cipherSuites: ["TLS_AES_256_GCM_SHA384"]
+        tlsProfiles:
+          profile: pq_tls
+      hosts: ["api.delivery.com"]

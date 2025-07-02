@@ -1,0 +1,18 @@
+name: CI AI Ethics
+on:
+  push:
+    paths:
+      - 'ml/ethics/**'
+      - 'governance/ki_policy.md'
+jobs:
+  ethics-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Bias & Explainability
+        run: |
+          pip install pandas scikit-learn shap mlflow
+          python ml/ethics/bias_check.py
+          python ml/ethics/shap_explain.py
+      - name: Policy Lint
+        run: markdownlint governance/ki_policy.md

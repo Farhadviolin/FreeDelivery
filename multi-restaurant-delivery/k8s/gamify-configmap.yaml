@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gamify-config
+  namespace: security
+  labels:
+    app: gamify
+    environment: production
+data:
+  config.yaml: |
+    slack:
+      webhook_url: "https://hooks.slack.com/services/xxx"
+    keycloak:
+      url: "https://keycloak.example.com"
+      client_id: "gamify-service"
+      client_secret: "..."

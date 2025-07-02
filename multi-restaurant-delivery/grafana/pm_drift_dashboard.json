@@ -1,0 +1,9 @@
+{
+  "dashboard": {
+    "title": "PM Model Drift Monitoring",
+    "panels": [
+      { "type":"stat","title":"Data Drift Flag","targets":[{"expr":"pm_data_drift"}] },
+      { "type":"graph","title":"Drift Over Time","targets":[{"expr":"pm_data_drift"}] }
+    ]
+  }
+}

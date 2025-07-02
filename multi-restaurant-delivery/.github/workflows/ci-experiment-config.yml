@@ -1,0 +1,17 @@
+name: CI Experiment Config
+on:
+  push:
+    paths:
+      - 'src/experiments/*'
+      - 'infra/sql/experiment_events.sql'
+jobs:
+  apply-experiment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Apply DB Migration
+        run: psql $DB_URL -f infra/sql/experiment_events.sql
+      - name: Deploy Tracking API
+        uses: azure/k8s-deploy@v4
+        with:
+          manifests: experiments/k8s/deployment.yaml

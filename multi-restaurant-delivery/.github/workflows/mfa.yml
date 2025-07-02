@@ -1,0 +1,10 @@
+on:
+  push:
+    paths:
+      - 'backend/identity/keycloak-realm-mfa.json'
+jobs:
+  deploy-mfa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: kcadm.sh create auth/executions -r realm -f backend/identity/keycloak-realm-mfa.json

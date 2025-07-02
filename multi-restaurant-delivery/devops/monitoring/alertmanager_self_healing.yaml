@@ -1,0 +1,6 @@
+route:
+  receiver: 'auto-remediate'
+receivers:
+  - name: 'auto-remediate'
+    webhook_configs:
+      - url: 'https://functions.delivery.com/remediate'

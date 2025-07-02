@@ -1,0 +1,8 @@
+- name: Trigger Velero Backup
+  run: velero backup create ci-backup-$(date +%Y%m%d%H%M) --include-namespaces=delivery
+
+- name: Import Backup Dashboard
+  run: |
+    curl -XPOST http://grafana:3000/api/dashboards/db \
+      -H "Content-Type: application/json" \
+      -d @grafana/backup_dashboard.json

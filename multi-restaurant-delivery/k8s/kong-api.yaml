@@ -1,0 +1,8 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongIngress
+metadata:
+  name: example
+proxy:
+  paths: ["/api"]
+upstream:
+  service: example-service

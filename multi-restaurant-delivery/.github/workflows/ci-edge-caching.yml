@@ -1,0 +1,24 @@
+name: CI Edge-Caching
+on:
+  push:
+    paths:
+      - 'edge/worker.js'
+      - 'infra/nginx/nginx.conf'
+      - 'infra/terraform/fastly.tf'
+jobs:
+  deploy-edge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Publish Cloudflare Worker
+        run: |
+          wrangler publish edge/worker.js --name delivery-cdn-worker
+      - name: Apply NGINX Config
+        run: |
+          scp infra/nginx/nginx.conf ops@origin-server:/etc/nginx/nginx.conf
+          ssh ops@origin-server "systemctl reload nginx"
+      - name: Terraform Fastly
+        run: |
+          cd infra/terraform
+          terraform init
+          terraform apply -auto-approve fastly.tf

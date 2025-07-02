@@ -1,0 +1,20 @@
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+jobs:
+  build-openssl-pqc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build OpenSSL PQC
+        run: |
+          bash devops/scripts/build-openssl-pqc.sh
+
+  test-pqc-tls:
+    needs: build-openssl-pqc
+    runs-on: ubuntu-latest
+    steps:
+      - name: TLS PQC Connection Test
+        run: python tests/test_pqc_tls.py

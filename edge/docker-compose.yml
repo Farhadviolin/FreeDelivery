@@ -1,0 +1,10 @@
+version: '3'
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+  telegraf:
+    image: telegraf:1.26
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf

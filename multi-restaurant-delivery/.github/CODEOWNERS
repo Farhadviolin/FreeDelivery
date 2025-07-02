@@ -1,0 +1,5 @@
+# CODEOWNERS
+*       @kileifer-admins
+backend/loyalty-integration-service/  @loyalty-team
+frontend/  @frontend-team
+infra/terraform/  @devops-team

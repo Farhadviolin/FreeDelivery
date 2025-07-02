@@ -1,0 +1,11 @@
+{
+  "mappings": {
+    "properties": {
+      "id": { "type": "keyword" },
+      "user_id": { "type": "keyword" },
+      "content": { "type": "text" },
+      "image_url": { "type": "keyword" },
+      "created_at": { "type": "date" }
+    }
+  }
+}

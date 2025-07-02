@@ -1,0 +1,10 @@
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: pod-latency
+spec:
+  action: delay
+  mode: one
+  selector: {namespaces: ["staging"], labelSelectors: {app: "backend"}}
+  delay: "200ms"
+  duration: "30s"

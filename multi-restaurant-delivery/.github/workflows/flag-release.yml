@@ -1,0 +1,23 @@
+name: Flag Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      flagKey:
+        description: 'Flag-Schlüssel'
+        required: true
+      enabled:
+        description: 'Enable variant?'
+        required: true
+
+jobs:
+  update-flag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Flagsmith CLI
+        run: npm install -g flagsmith-cli
+      - name: Update Flag
+        run: |
+          flagsmith update-flag --environment ${{ secrets.FLAGSMITH_ENV_ID }} \
+            --flag-key ${{ github.event.inputs.flagKey }} \
+            --variation ${{ github.event.inputs.enabled == 'true' ? 'variant' : 'control' }}

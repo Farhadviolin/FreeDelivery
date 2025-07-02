@@ -1,0 +1,5 @@
+name: "full_funnel"
+version: "1.0"
+models:
+  full_funnel:
+    materialized: table

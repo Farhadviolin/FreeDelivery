@@ -1,0 +1,22 @@
+{
+  "dashboard": {
+    "title": "Backup & DR Monitoring",
+    "panels": [
+      {
+        "type": "graph",
+        "title": "Velero Backup Duration",
+        "targets": [{ "expr": "velero_backup_duration_seconds" }]
+      },
+      {
+        "type": "graph",
+        "title": "Restic Backup Success",
+        "targets": [{ "expr": "restic_backup_success_total" }]
+      },
+      {
+        "type": "graph",
+        "title": "PostgreSQL WAL Archive Lag",
+        "targets": [{ "expr": "pg_wal_lag_seconds" }]
+      }
+    ]
+  }
+}

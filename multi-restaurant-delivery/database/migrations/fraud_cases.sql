@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS fraud_cases (
+  id SERIAL PRIMARY KEY,
+  tx_id TEXT NOT NULL,
+  score NUMERIC(5,4) NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);

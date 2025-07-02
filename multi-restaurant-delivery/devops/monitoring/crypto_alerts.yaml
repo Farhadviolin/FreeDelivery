@@ -1,0 +1,19 @@
+groups:
+  - name: crypto-operations
+    rules:
+      - alert: CryptoErrorRateHigh
+        expr: rate(crypto_errors_total[5m]) > 0.01
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Hohe Fehlerquote bei Crypto-Operationen"
+          description: "Mehr als 1% Fehler bei Crypto-Operationen in den letzten 5 Minuten."
+      - alert: CryptoLatencyHigh
+        expr: avg_over_time(crypto_latency_ms[5m]) > 100
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Hohe Latenz bei Crypto-Operationen"
+          description: "Durchschnittliche Latenz >100ms in den letzten 5 Minuten."

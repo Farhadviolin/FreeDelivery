@@ -1,0 +1,49 @@
+openapi: 3.0.3
+info:
+  title: Delivery Partner API
+  version: "1.0.0"
+paths:
+  /orders:
+    post:
+      summary: Create an order
+      security:
+        - oauth2: [partner:create]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Order"
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderResponse"
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://auth.delivery.com/token
+          scopes:
+            partner:create: "Create orders"
+  schemas:
+    Order:
+      type: object
+      properties:
+        restaurantId: { type: string }
+        items: 
+          type: array
+          items: { $ref: "#/components/schemas/OrderItem" }
+    OrderItem:
+      type: object
+      properties:
+        productId: { type: string }
+        quantity: { type: integer }
+    OrderResponse:
+      type: object
+      properties:
+        orderId: { type: string }
+        status: { type: string }

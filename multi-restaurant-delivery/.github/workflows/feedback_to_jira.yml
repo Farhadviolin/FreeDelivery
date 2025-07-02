@@ -1,0 +1,17 @@
+name: New Issue from Label
+on:
+  issues:
+    types: [labeled]
+jobs:
+  create-jira:
+    if: github.event.label.name == 'feedback'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: atlassian/gajira-create@v2
+        with:
+          project: DEL
+          summary: ${{ github.event.issue.title }}
+          description: ${{ github.event.issue.body }}
+          issuetype: Feedback
+          token: ${{ secrets.JIRA_TOKEN }}

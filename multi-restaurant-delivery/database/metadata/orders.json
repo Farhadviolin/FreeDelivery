@@ -1,0 +1,14 @@
+{
+  "entity": "orders",
+  "fields": [
+    { "name": "id", "type": "uuid", "class": "public" },
+    { "name": "user_id", "type": "uuid", "class": "PII" },
+    { "name": "status", "type": "text", "class": "public" },
+    { "name": "total_amount", "type": "numeric", "class": "sensitive" },
+    { "name": "payment_intent_id", "type": "text", "class": "sensitive" },
+    { "name": "created_at", "type": "timestamp", "class": "public" }
+  ],
+  "upstream": ["api-gateway"],
+  "downstream": ["analytics-service", "compliance-service"],
+  "retention": "7y"
+}

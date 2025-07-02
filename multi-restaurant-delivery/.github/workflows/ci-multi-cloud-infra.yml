@@ -1,0 +1,25 @@
+name: CI Multi-Cloud Infra
+on:
+  push:
+    paths:
+      - 'infrastructure/**'
+      - 'gitops/**'
+jobs:
+  deploy-aws:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Terragrunt AWS Apply
+        run: terragrunt apply --terragrunt-working-dir infrastructure/aws --auto-approve
+  deploy-gcp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Terragrunt GCP Apply
+        run: terragrunt apply --terragrunt-working-dir infrastructure/gcp --auto-approve
+  sync-gitops:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: imranismail/setup-argocd@v1
+      - name: ArgoCD Sync
+        run: argocd app sync delivery-root

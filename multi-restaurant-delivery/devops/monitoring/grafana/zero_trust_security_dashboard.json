@@ -1,0 +1,26 @@
+{
+  "title": "Zero Trust Security Overview",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "mTLS Authenticated Connections",
+      "targets": [{"expr": "istio_mtls_authentication_success_total"}]
+    },
+    {
+      "type": "stat",
+      "title": "Denied Requests (OPA)",
+      "targets": [{"expr": "opa_denied_requests_total"}]
+    },
+    {
+      "type": "stat",
+      "title": "NetworkPolicy Blocks",
+      "targets": [{"expr": "k8s_networkpolicy_block_total"}]
+    },
+    {
+      "type": "logs",
+      "title": "Access Logs (ELK/Loki)",
+      "targets": [{"expr": "{app=~\".*\"}"}]
+    }
+  ],
+  "time": {"from": "now-24h", "to": "now"}
+}

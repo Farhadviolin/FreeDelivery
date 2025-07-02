@@ -1,0 +1,22 @@
+name: CI QR & Offline Marketing
+on: [push]
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node & Python
+        run: |
+          npm ci
+          pip install fastapi sqlalchemy pytest
+      - name: Test QR Service
+        run: npm test --workspace=qr-service
+      - name: Test Tracking API
+        run: pytest tracking/tests
+      - name: Build & Deploy
+        uses: delivery/k8s-deploy@v1
+        with:
+          manifests: |
+            qr-service/k8s/deployment.yaml
+            tracking/k8s/deployment.yaml
+            dashboard/k8s/deployment.yaml

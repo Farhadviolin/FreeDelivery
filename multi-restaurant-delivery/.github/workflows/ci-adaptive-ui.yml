@@ -1,0 +1,147 @@
+name: CI Adaptive UI
+
+on:
+  push:
+    paths:
+      - 'web/app/components/PersonalizedMenu.tsx'
+      - 'personal/**'
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Test Personal API
+        run: |
+          pip install fastapi redis pytest
+          pytest personal/tests
+      - name: Build Next.js
+        run: |
+          cd web && npm ci && npm run build
+      - name: Install Playwright Browsers
+        run: |
+          cd web && npx playwright install --with-deps
+      - name: Run Playwright E2E Tests
+        run: |
+          cd web && npx playwright test
+      - name: Lint Frontend (ESLint)
+        run: |
+          cd web && npx eslint . --ext .js,.jsx,.ts,.tsx || exit 1
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: web
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Snyk Dependency Scan (Node.js)
+        uses: snyk/actions/node@master
+        with:
+          command: test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Snyk Dependency Scan (Python)
+        uses: snyk/actions/python@master
+        with:
+          command: test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Set up Kubeconfig
+        run: echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 --decode > $HOME/.kube/config
+      - uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.27.0'
+      - uses: azure/k8s-deploy@v4
+        with:
+          manifests: |
+            personal/k8s/api.yaml
+            web/k8s/app.yaml
+      - name: Check Monitoring Stack (Prometheus/Grafana/Loki)
+        run: |
+          kubectl get pods -n monitoring
+          kubectl get svc -n monitoring
+      - name: Rollback on Failed Deployment
+        if: failure()
+        run: |
+          echo "Deployment failed, rolling back to previous revision..."
+          kubectl rollout undo -f personal/k8s/api.yaml || true
+          kubectl rollout undo -f web/k8s/app.yaml || true
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Fetch Secrets from Azure Key Vault
+        uses: azure/keyvault-secrets@v1
+        with:
+          keyvault: ${{ secrets.KEYVAULT_NAME }}
+          secrets: | # Kommagetrennte Liste, z.B. DB_PASSWORD,API_KEY
+            DB_PASSWORD
+            API_KEY
+      - name: Create K8s Secret from Key Vault
+        run: |
+          kubectl create secret generic app-secrets \
+            --from-literal=DB_PASSWORD=$DB_PASSWORD \
+            --from-literal=API_KEY=$API_KEY \
+            --dry-run=client -o yaml | kubectl apply -f -
+      - name: Generate FastAPI OpenAPI Docs
+        run: |
+          pip install -U fastapi[all] jinja2
+          python -c "from fastapi.openapi.utils import get_openapi; import personal.api as api; import json; open('openapi.json','w').write(json.dumps(get_openapi(title='Personal API', version='1.0.0', routes=api.app.routes)))"
+          # Optional: HTML-Export mit Swagger-UI
+      - name: Generate TypeScript Docs (Typedoc)
+        run: |
+          cd web && npx typedoc --out ../docs/typedoc
+      - name: Upload Documentation Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation
+          path: |
+            openapi.json
+            docs/typedoc
+      - name: Python Coverage Report
+        run: |
+          pip install coverage pytest-cov
+          coverage run -m pytest personal/tests
+          coverage xml -o coverage-python.xml
+      - name: Frontend Coverage Report (Jest)
+        run: |
+          cd web && npx jest --coverage --coverageReporters=lcov --coverageDirectory=../coverage-frontend
+      - name: Upload Coverage Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: |
+            coverage-python.xml
+            coverage-frontend
+      - name: Check missing npm dependencies and typings
+        run: |
+          cd web && npm ls || true
+          cd web && npm outdated || true
+          cd web && npx tsc --noEmit || true
+      - name: Check missing Python requirements
+        run: |
+          pip check || true
+          pip list --outdated || true
+
+  deploy-production:
+    needs: build-test-deploy
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://your-production-url.example.com
+    steps:
+      - name: Wait for Approval
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ secrets.GITHUB_TOKEN }}
+          approvers: user1,user2
+      - uses: actions/checkout@v3
+      - name: Set up Kubeconfig (Production)
+        run: echo "${{ secrets.KUBE_CONFIG_DATA_PROD }}" | base64 --decode > $HOME/.kube/config
+      - uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.27.0'
+      - uses: azure/k8s-deploy@v4
+        with:
+          manifests: |
+            personal/k8s/api-prod.yaml
+            web/k8s/app-prod.yaml

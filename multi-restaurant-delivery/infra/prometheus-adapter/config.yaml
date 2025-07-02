@@ -1,0 +1,12 @@
+rules:
+  - seriesQuery: 'order_service_requests_total'
+    resources:
+      overrides:
+        namespace:
+          resource: namespace
+        pod:
+          resource: pod
+    name:
+      matches: "^(.*)_total"
+      as: "${1}_per_second"
+    metricsQuery: 'sum(rate(order_service_requests_total{namespace!="",pod!=""}[2m])) by (pod)'

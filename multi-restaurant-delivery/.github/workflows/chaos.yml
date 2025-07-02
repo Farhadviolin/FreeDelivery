@@ -1,0 +1,19 @@
+name: CI Chaos Experiments
+on:
+  push:
+    paths:
+      - 'chaos/**'
+jobs:
+  apply-chaos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy Chaos CRDs
+        run: |
+          kubectl apply -f chaos/steady-state.yaml
+          kubectl apply -f chaos/network-delay.yaml
+      - name: Import Chaos Dashboard
+        run: |
+          curl -XPOST http://grafana:3000/api/dashboards/db \
+            -H "Content-Type: application/json" \
+            -d @grafana/chaos_dashboard.json

@@ -1,0 +1,8 @@
+{
+  "mappings": [
+    {
+      "request": { "method": "POST", "url": "/api/payments" },
+      "response": { "status": 200, "jsonBody": { "status": "ok", "transactionId": "mock-123" } }
+    }
+  ]
+}

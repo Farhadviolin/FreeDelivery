@@ -1,0 +1,6 @@
+apiVersion: kubecost.com/v1
+kind: CostModel
+metadata:
+  name: default
+spec:
+  carbonCostEnabled: true

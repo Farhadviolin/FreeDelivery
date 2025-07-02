@@ -1,0 +1,7 @@
+type User { id: ID! name: String! ordered: [MenuItem]! }
+type MenuItem { id: ID! name: String! recommended: [MenuItem]! }
+type Query {
+  user(id: ID!): User
+  menuItem(id: ID!): MenuItem
+  recommend(userId: ID!): [MenuItem!]!
+}

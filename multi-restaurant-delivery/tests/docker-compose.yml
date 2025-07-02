@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  api:
+    image: staging.api:latest
+    ports: ['4000:4000']
+    environment: [ENV=staging]
+  web:
+    image: staging.web:latest
+    depends_on: ['api']
+    ports: ['3000:3000']
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: testdb
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0

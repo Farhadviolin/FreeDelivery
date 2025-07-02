@@ -1,0 +1,26 @@
+name: Generate SDKs
+on:
+  push:
+    paths:
+      - 'portal/openapi.yaml'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Generate JS SDK
+        run: |
+          openapi-generator-cli generate \
+            -i portal/openapi.yaml \
+            -g javascript \
+            -o portal/sdk/js
+      - name: Generate Python SDK
+        run: |
+          openapi-generator-cli generate \
+            -i portal/openapi.yaml \
+            -g python \
+            -o portal/sdk/py
+      - name: Publish Packages
+        run: |
+          cd portal/sdk/js && npm publish --access public
+          cd portal/sdk/py && python setup.py sdist upload

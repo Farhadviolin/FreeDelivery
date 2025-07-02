@@ -1,0 +1,28 @@
+name: E2E Tests
+on: pull_request
+jobs:
+  setup-and-test:
+    runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker:20.10
+        options: --privileged
+    steps:
+      - uses: actions/checkout@v3
+      - name: Start Test Environment
+        run: docker-compose -f test/docker-compose.yml up -d
+      - name: Wait for Services
+        run: sleep 20
+      - name: Install Dependencies
+        run: npm ci
+      - name: Run Cypress
+        run: npx cypress run --record --key $CYPRESS_KEY
+      - name: Run Playwright
+        run: npx playwright test
+      - name: Run Detox
+        run: npx detox test --configuration ios.simulator
+      - name: Publish Allure Report
+        run: |
+          npm install -g allure-commandline
+          allure generate e2e/allure-results --clean -o e2e/allure-report
+          allure open e2e/allure-report

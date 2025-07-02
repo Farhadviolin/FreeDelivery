@@ -1,0 +1,14 @@
+jobs:
+  build-mobile:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: yarn install
+      - run: npx pod-install --project-directory=ios
+      - run: yarn build:ios
+      - run: yarn build:android
+      - name: Sentry Release
+        run: |
+          export SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_TOKEN }}
+          sentry-cli releases new $GITHUB_SHA
+          sentry-cli releases files $GITHUB_SHA upload-sourcemaps ./dist

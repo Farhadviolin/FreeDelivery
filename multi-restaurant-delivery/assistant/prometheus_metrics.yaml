@@ -1,0 +1,17 @@
+groups:
+  - name: rasa
+    rules:
+      - alert: RasaNLUError
+        expr: rasa_nlu_errors_total > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "NLU-Fehler im Conversational Bot erkannt"
+      - alert: RasaLowSuccessRate
+        expr: rasa_successful_conversations_rate < 0.8
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Erfolgsrate der Bot-Konversationen unter 80%"

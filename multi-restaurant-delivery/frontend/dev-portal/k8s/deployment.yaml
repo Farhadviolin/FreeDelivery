@@ -1,0 +1,45 @@
+--
+apiVersion: v1
+kind: Service
+metadata:
+  name: dev-portal
+spec:
+  selector:
+    app: dev-portal
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dev-portal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dev-portal
+  template:
+    metadata:
+      labels:
+        app: dev-portal
+    spec:
+      containers:
+        - name: dev-portal
+          image: registry.delivery.com/dev-portal:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: KEYCLOAK_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: client-id
+            - name: KEYCLOAK_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: client-secret
+            - name: KEYCLOAK_ISSUER
+              value: "https://keycloak.delivery.com/realms/devportal"

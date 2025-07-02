@@ -1,0 +1,7 @@
+[
+  {"userId": "u1", "eventType": "view", "details": {"scene": "panorama"}},
+  {"userId": "u1", "eventType": "interact", "details": {"action": "placeModel", "model": "dish.glb"}},
+  {"userId": "u2", "eventType": "view", "details": {"scene": "menu"}},
+  {"userId": "u2", "eventType": "interact", "details": {"action": "rotateModel", "model": "dish.glb"}},
+  {"userId": "u3", "eventType": "view", "details": {"scene": "panorama"}}
+]

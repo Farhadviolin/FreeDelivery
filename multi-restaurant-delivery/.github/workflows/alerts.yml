@@ -1,0 +1,15 @@
+name: Deploy SLO & Alerts
+on:
+  push:
+    paths:
+      - 'observability/slo_rules.yaml'
+      - 'observability/alertmanager.yaml'
+jobs:
+  apply-alerts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Apply Prometheus Rules
+        run: kubectl apply -f observability/slo_rules.yaml -n monitoring
+      - name: Apply Alertmanager Config
+        run: kubectl apply -f observability/alertmanager.yaml -n monitoring

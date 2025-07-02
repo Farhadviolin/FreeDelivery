@@ -1,0 +1,12 @@
+name: CI/CD E2EE Gateway
+on:
+  push:
+    paths:
+      - 'backend/e2ee-gateway/**'
+    branches: [ main ]
+jobs:
+  ci:
+    uses: ./.github/workflows/ci-template.yml
+    with:
+      servicePath: 'backend/e2ee-gateway'
+      serviceName: 'e2ee-gateway'

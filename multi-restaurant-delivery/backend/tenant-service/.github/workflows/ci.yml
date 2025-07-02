@@ -1,0 +1,14 @@
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: terraform init terraform/
+      - run: terraform apply -auto-approve terraform/
+  deploy-saas:
+    needs: terraform
+    runs-on: ubuntu-latest
+    steps:
+      - uses: azure/k8s-deploy@v1
+        with:
+          manifests: k8s/saas/*.yaml

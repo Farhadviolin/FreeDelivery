@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: "left-pad"
+        versions: ["<1.0.0"]
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "daily" 

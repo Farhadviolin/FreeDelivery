@@ -1,0 +1,18 @@
+apiVersion: slothelo.io/v1alpha1
+kind: SLO
+metadata:
+  name: delivery-api-slo
+spec:
+  service: delivery-api
+  objective: 99.9
+  window: 30d
+  slo:
+    - name: request_latency
+      indicator: "request_latency_seconds"
+      labels:
+        job: "delivery-api"
+      target: 0.95
+      warning: 1.0
+    - name: error_rate
+      indicator: "rate(http_requests_total{code=~\"5..\"}[5m])"
+      target: 0.001

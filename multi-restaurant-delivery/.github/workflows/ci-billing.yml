@@ -1,0 +1,23 @@
+name: CI Billing Service
+on:
+  push:
+    paths:
+      - 'billing/**'
+      - 'portal/src/components/Billing.tsx'
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python & Node
+        run: |
+          pip install -r billing/requirements.txt
+          npm ci --prefix portal
+      - name: Test Billing API
+        run: pytest billing/tests
+      - name: Build Portal
+        run: npm run build --prefix portal
+      - name: Deploy
+        uses: azure/k8s-deploy@v4
+        with:
+          manifests: billing/k8s/api.yaml, portal/k8s/web.yaml

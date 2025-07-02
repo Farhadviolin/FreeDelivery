@@ -1,0 +1,7 @@
+# Beispiel-Daten für Segmentierungs-Feature-Store
+user_id,event_timestamp,user_total_orders,user_avg_order_value,label_segment
+u1,2025-06-01T12:00:00Z,5,22.5,A
+u2,2025-06-01T12:00:00Z,12,35.0,B
+u3,2025-06-01T12:00:00Z,2,15.0,C
+u4,2025-06-01T12:00:00Z,20,40.0,A
+u5,2025-06-01T12:00:00Z,1,10.0,C

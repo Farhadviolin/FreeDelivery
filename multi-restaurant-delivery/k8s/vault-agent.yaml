@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  template:
+    metadata:
+      annotations:
+        vault.hashicorp.com/role: "app-role"
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-inject-secret-credentials: "secret/data/app/credentials"
+    spec:
+      serviceAccountName: myapp-sa
+      containers:
+        - name: myapp
+          image: registry.delivery.com/myapp:latest
+          env:
+            - name: DB_USER
+              valueFrom: { secretKeyRef: { name: credentials, key: data.DB_USER } }
+            - name: DB_PASSWORD
+              valueFrom: { secretKeyRef: { name: credentials, key: data.DB_PASSWORD } }

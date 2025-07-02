@@ -1,0 +1,10 @@
+auth:
+  type: oauthenticator.keycloak.KeycloakOAuthenticator
+  keycloak_url: https://auth.kilief.com
+  client_id: jupyterhub
+  client_secret: ${KEYCLOAK_SECRET}
+singleuser:
+  image:
+    name: jupyter/scipy-notebook
+    tag: latest
+  cmd: start-singleuser.sh

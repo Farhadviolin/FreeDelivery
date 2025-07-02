@@ -1,0 +1,15 @@
+{
+  "title": "Driver Analytics",
+  "panels": [
+    {
+      "type": "graph",
+      "title": "Orders per Hour",
+      "targets": [{"expr": "orders_per_hour"}]
+    },
+    {
+      "type": "stat",
+      "title": "Active Drivers",
+      "targets": [{"expr": "active_drivers"}]
+    }
+  ]
+}

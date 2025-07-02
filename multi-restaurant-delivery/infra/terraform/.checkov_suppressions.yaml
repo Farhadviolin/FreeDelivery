@@ -1,0 +1,4 @@
+# allow public subnets for legacy compatibility
+- id: CKV_AWS_24
+  resource: aws_subnet.public
+  justification: "Temporary until migration to private subnets is complete"

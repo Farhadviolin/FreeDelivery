@@ -1,0 +1,24 @@
+specVersion: 0.0.2
+description: Index LoyaltyToken events
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: LoyaltyToken
+    network: goerli
+    source:
+      address: "0xYourDeployedAddress"
+      abi: LoyaltyToken
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - TokenBalance
+      abis:
+        - name: LoyaltyToken
+          file: ./abis/LoyaltyToken.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+      file: ./src/mapping.ts

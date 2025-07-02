@@ -1,0 +1,28 @@
+name: CI Archive Infra
+on: [push]
+jobs:
+  terraform-apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+      - name: Terraform Init & Apply
+        run: |
+          cd infra
+          terraform init
+          terraform apply -auto-approve
+  airflow-dag-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Copy DAGs
+        run: |
+          cp ml-ds/training/dags/archive_data.py $AIRFLOW_DAGS_PATH/
+  grafana-dashboard-import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Import Dashboard
+        run: |
+          curl -XPOST http://grafana:3000/api/dashboards/db -d @devops/monitoring/grafana/archive_dashboard.json

@@ -1,0 +1,6 @@
+syntax = "proto3";
+service Personalization {
+  rpc Recommend(RecommendRequest) returns (RecommendResponse);
+}
+message RecommendRequest { string user_id = 1; }
+message RecommendResponse { repeated string item_ids = 1; }

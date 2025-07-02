@@ -1,0 +1,5 @@
+auditbeat.modules:
+- module: auditd
+  audit_rule_files: ["/etc/audit/rules.d/*.conf"]
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]

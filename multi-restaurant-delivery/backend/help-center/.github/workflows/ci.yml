@@ -1,0 +1,18 @@
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      weaviate:
+        image: semitechnologies/weaviate:1.18
+        ports:
+          - 8080:8080
+    steps:
+      - uses: actions/checkout@v3
+      - run: pip install -r requirements.txt
+      - run: pytest tests/
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dtzar/helm-kubectl@v1
+      - run: helm upgrade --install help-center ./helm/help-center

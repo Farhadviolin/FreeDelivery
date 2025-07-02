@@ -1,0 +1,14 @@
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+  name: default
+spec:
+  meshConfig:
+    defaultConfig:
+      proxyMetadata:
+        # PQC-capable Envoy build metadata
+      tls:
+        cipherSuites:
+          - TLS_AES_256_GCM_SHA384
+          - ECDHE-ECDSA-AES256-GCM-SHA384
+          - ECDHE-KECCAK256-KYBER-512-SHA384   # PQC hybrid suite

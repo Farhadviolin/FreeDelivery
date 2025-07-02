@@ -1,0 +1,80 @@
+name: CI/CD Extended
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Node.js & Docker BuildKit
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Enable BuildKit
+        run: |
+          echo '{ "features": { "buildkit": true } }' | sudo tee /etc/docker/daemon.json
+          sudo systemctl restart docker
+      - name: Define service matrix
+        id: set-matrix
+        run: |
+          echo "::set-output name=matrix::{\"include\":[
+            {\"service\":\"api-gateway\"},
+            {\"service\":\"auth-service\"},
+            {\"service\":\"order-service\"},
+            {\"service\":\"payment-service\"},
+            {\"service\":\"notification-service\"}
+          ]}"
+  build-and-push:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{fromJson(needs.prepare.outputs.matrix)}}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build service ${{ matrix.service }}
+        working-directory: backend/${{ matrix.service }}
+        run: |
+          yarn install --frozen-lockfile
+          yarn build
+      - name: Run i18n QA
+        working-directory: backend/${{ matrix.service }}
+        run: python ../../scripts/i18n-qa.py
+      - name: Docker Login
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+      - name: Build Docker Image
+        working-directory: backend/${{ matrix.service }}
+        run: |
+          docker build --progress=plain -t ghcr.io/${{ github.repository_owner }}/${{ matrix.service }}:${{ github.sha }} .
+      - name: Scan Image for Vulnerabilities
+        uses: aquasecurity/trivy-action@v0.9.0
+        with:
+          image-ref: ghcr.io/${{ github.repository_owner }}/${{ matrix.service }}:${{ github.sha }}
+      - name: Push Docker Image
+        run: |
+          docker push ghcr.io/${{ github.repository_owner }}/${{ matrix.service }}:${{ github.sha }}
+      - name: Create Release Draft
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.sha }}
+          name: Release ${{ github.sha }}
+          draft: true
+      - name: Notify Slack
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

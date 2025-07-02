@@ -1,0 +1,5 @@
+intents:
+  - order_pizza
+responses:
+  utter_ask_size:
+    - text: "Welche Größe möchten Sie?"

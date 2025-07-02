@@ -1,0 +1,26 @@
+name: CI DSAR Service
+on: [push]
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install & Test Python
+        run: |
+          pip install fastapi sqlalchemy redis pytest
+          pytest backend/dsar-service/tests
+      - name: Build & Push Docker
+        run: |
+          docker build -t registry.delivery.com/dsar-service:${{github.sha}} .
+          docker push registry.delivery.com/dsar-service:${{github.sha}}
+      - name: Set up Kubeconfig
+        run: echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 --decode > $HOME/.kube/config
+      - uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.27.0'
+      - uses: azure/k8s-deploy@v4
+        with:
+          manifests: |
+            ./k8s/dsar.yaml
+          images: |
+            registry.delivery.com/dsar-service:${{ github.sha }}

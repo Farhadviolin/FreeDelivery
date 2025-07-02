@@ -1,0 +1,25 @@
+name: CI Quantum-Safe Crypto
+on: [push]
+jobs:
+  build-pqc-binaries:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build OpenSSL + liboqs
+        run: bash scripts/build_openssl_liboqs.sh
+      - name: Build Node PQC Addon
+        run: |
+          cd pqc-addon
+          npm install
+          npm test
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+      - name: Deploy to K8s
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+        run: |
+          kubectl apply -f k8s/quantum-safe-crypto.yaml
+      - name: Provision PQC Load Balancer
+        run: terraform apply -auto-approve infra/pqc_lb.tf

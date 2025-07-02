@@ -1,0 +1,12 @@
+{
+  "info": { "name": "API Tests" },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "url": "{{baseUrl}}/health",
+        "method": "GET"
+      }
+    }
+  ]
+}

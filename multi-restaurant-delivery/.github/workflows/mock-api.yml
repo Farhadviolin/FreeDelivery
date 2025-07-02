@@ -1,0 +1,19 @@
+name: Mock API CI
+
+on:
+  push:
+    paths:
+      - 'infra/openapi/**'
+
+jobs:
+  serve-mock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: npm install -g @stoplight/prism-cli@4
+      - name: Start Mock Server
+        run: prism mock infra/openapi/restaurant-api.yml --port 4000 &
+      - name: Smoke-Test Mock
+        run: |
+          curl -s http://localhost:4000/restaurants | jq .

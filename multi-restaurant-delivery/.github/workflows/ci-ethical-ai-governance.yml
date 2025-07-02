@@ -1,0 +1,259 @@
+name: CI Ethical AI Governance
+
+on:
+  push:
+    paths:
+      - 'scripts/bias_check.py'
+      - 'k8s/ethical-ai-governance.yaml'
+      - 'eval_suite/**'
+      - '.github/workflows/ci-ethical-ai-governance.yml'
+
+jobs:
+  governance-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Install Python Dependencies
+        run: |
+          pip install fastapi sqlalchemy fairlearn evidently great_expectations pytest coverage bandit flake8 black isort mypy
+      - name: Lint Python (bandit)
+        run: bandit -r scripts/
+      - name: Lint Python (flake8)
+        run: flake8 .
+      - name: Format Check (black)
+        run: black --check .
+      - name: Import Sort Check (isort)
+        run: isort --check-only .
+      - name: Type Check (mypy)
+        run: mypy .
+      - name: Run Bias Check (mit Coverage)
+        run: |
+          coverage run -m pytest scripts/bias_check.py
+          coverage xml -o coverage-bias.xml
+      - name: Run Data Quality Tests
+        run: great_expectations checkpoint run eval_suite
+      - name: Python Coverage Report
+        run: coverage report
+      - name: Upload Reports & Data Docs
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-governance-reports
+          path: |
+            coverage-bias.xml
+            .pytest_cache/
+            great_expectations/uncommitted/data_docs/
+      - name: Upload Frontend Coverage (web-poc)
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-poc-coverage
+          path: frontend/web-poc/coverage/lcov.info
+      - name: Upload Frontend Coverage (customer)
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: customer-coverage
+          path: apps/customer/coverage/lcov.info
+      - name: Upload Frontend Coverage (driver)
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: driver-coverage
+          path: apps/driver/coverage/lcov.info
+      - name: Upload Frontend Coverage (admin)
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-coverage
+          path: apps/admin/coverage/lcov.info
+      - name: Upload UI-Library Coverage
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-library-coverage
+          path: packages/ui/coverage/lcov.info
+      - name: Snyk Dependency Scan (Python)
+        uses: snyk/actions/python@v4
+        with:
+          command: test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Snyk Dependency Scan (Node.js)
+        uses: snyk/actions/node@v4
+        with:
+          command: test
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Snyk Dependency Scan (Customer App)
+        uses: snyk/actions/node@v4
+        with:
+          command: test
+          project: apps/customer
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Snyk Dependency Scan (Driver App)
+        uses: snyk/actions/node@v4
+        with:
+          command: test
+          project: apps/driver
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Snyk Dependency Scan (Admin App)
+        uses: snyk/actions/node@v4
+        with:
+          command: test
+          project: apps/admin
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Snyk Dependency Scan (UI-Library)
+        uses: snyk/actions/node@v4
+        with:
+          command: test
+          project: packages/ui
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: .
+          args: >
+            -Dsonar.python.coverage.reportPaths=coverage-bias.xml
+            -Dsonar.javascript.lcov.reportPaths=frontend/web-poc/coverage/lcov.info
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: SonarCloud Scan (Customer App)
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: apps/customer
+          args: >
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: SonarCloud Scan (Driver App)
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: apps/driver
+          args: >
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: SonarCloud Scan (Admin App)
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: apps/admin
+          args: >
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: SonarCloud Scan (UI-Library)
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: packages/ui
+          args: >
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Checkov IaC Scan
+        uses: bridgecrewio/checkov-action@v13
+        with:
+          directory: ./k8s
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'latest'
+      - name: Deploy to K8s
+        if: ${{ success() }}
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+        run: |
+          kubectl apply -f k8s/ethical-ai-governance.yaml
+      - name: Check required secrets
+        run: |
+          for secret in SNYK_TOKEN SONAR_TOKEN KUBECONFIG; do
+            if [ -z "${!secret}" ]; then
+              echo "::error::Missing required secret: $secret" && exit 1
+            fi
+          done
+      - name: Dependency Update (Renovate)
+        uses: renovatebot/github-action@v40.1.10
+        with:
+          configurationFile: .github/renovate.json
+        env:
+          RENOVATE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check for Outdated Node.js Dependencies
+        run: yarn outdated || true
+      - name: Check for Outdated Python Dependencies
+        run: pip list --outdated || true
+      - name: Check for Missing TypeScript Typings
+        run: yarn workspaces foreach --all exec npm ls --depth=0 | grep '@types/' || true
+      - name: Check for Python Import Errors
+        run: pytest --collect-only || true
+      - name: Check Import Path Aliases (TS)
+        run: yarn workspaces foreach --all exec tsc --noEmit || true
+      - name: Lint All (Prettier, ESLint, Stylelint)
+        run: |
+          yarn prettier --check . || true
+          yarn eslint . || true
+          yarn stylelint "**/*.{css,scss,js,ts,tsx}" || true
+      - name: Security Scan (Gitleaks)
+        uses: gitleaks/gitleaks-action@v2.3.4
+        with:
+          config-path: .github/gitleaks.toml
+      - name: Generate TypeScript Docs (Typedoc)
+        run: |
+          yarn workspaces foreach --all exec typedoc --out docs/typedoc || true
+      - name: Generate Python Docs (pdoc)
+        run: |
+          pip install pdoc3 || true
+          pdoc --html . --output-dir docs/pdoc || true
+      - name: Upload Docs Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-artifacts
+          path: |
+            docs/typedoc/
+            docs/pdoc/
+      - name: E2E Tests (Playwright)
+        run: |
+          yarn playwright install --with-deps || true
+          yarn test:e2e || true
+      - name: Load Test (Locust)
+        run: |
+          pip install locust
+          locust -f e2e/locustfile.py --headless -u 10 -r 2 -t1m --host=http://localhost:8000 || true
+      - name: Security Test (OWASP ZAP)
+        run: |
+          docker run -v $(pwd)/e2e:/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://localhost:3000 -c /zap/wrk/zap-baseline.conf -r zap-report.html || true
+      - name: Upload Coverage Badge
+        uses: tj-actions/coverage-badge-py@v2
+        with:
+          output: .github/badges/coverage.svg
+      - name: Upload Coverage Badge Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-badge
+          path: .github/badges/coverage.svg
+      - name: PR Quality Gate
+        if: github.event_name == 'pull_request'
+        run: |
+          if grep -q 'ERROR' coverage-bias.xml; then
+            echo "::error::Coverage threshold not met" && exit 1
+          fi
+          if grep -q 'CRITICAL' .github/workflows/ci-ethical-ai-governance.yml; then
+            echo "::error::Critical issue detected in workflow" && exit 1
+          fi
+      - name: Lint i18n (Check missing translations)
+        run: |
+          npx i18next-scanner --config i18next-scanner.config.js || true
+          python backend/api-gateway/api/locales.py || true

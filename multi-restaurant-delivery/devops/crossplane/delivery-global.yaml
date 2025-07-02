@@ -1,0 +1,22 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: delivery-global
+spec:
+  resources:
+  - name: clusterA
+    base:
+      apiVersion: eks.aws.crossplane.io/v1beta1
+      kind: Cluster
+      spec:
+        forProvider:
+          region: eu-central-1
+          version: "1.27"
+  - name: clusterB
+    base:
+      apiVersion: eks.aws.crossplane.io/v1beta1
+      kind: Cluster
+      spec:
+        forProvider:
+          region: eu-west-1
+          version: "1.27"

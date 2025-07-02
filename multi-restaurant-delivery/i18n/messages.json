@@ -1,0 +1,18 @@
+{
+  "en": {
+    "greeting": "Hello!",
+    "order": "Order now"
+  },
+  "de": {
+    "greeting": "Hallo!",
+    "order": "Jetzt bestellen"
+  },
+  "fr": {
+    "greeting": "Bonjour!",
+    "order": "Commander maintenant"
+  },
+  "es": {
+    "greeting": "¡Hola!",
+    "order": "Ordenar ahora"
+  }
+}

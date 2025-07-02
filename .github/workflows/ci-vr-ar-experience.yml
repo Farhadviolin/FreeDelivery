@@ -1,0 +1,30 @@
+name: CI VR/AR Experience
+on:
+  push:
+    paths:
+      - 'app/**'
+      - 'public/js/**'
+      - 'ViroARScene.js'
+      - 'Assets/**'
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python & Node
+        run: |
+          pip install fastapi boto3 pytest
+          npm ci
+      - name: Test Content API
+        run: pytest app/tests
+      - name: Build WebXR Bundle
+        run: npm run build:webxr
+      - name: Unity Build
+        uses: webbertakken/unity-builder@v2
+        with:
+          targetPlatform: Android
+          unityVersion: 2024.1
+      - name: Deploy to S3/Static Hosting
+        run: |
+          aws s3 sync public/js s3://cdn.delivery.com/webxr
+          aws s3 sync build/unity/android s3://cdn.delivery.com/vr/android

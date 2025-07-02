@@ -1,0 +1,15 @@
+name: CI Funnel Analytics
+on:
+  schedule:
+    - cron: '0 * * * *'
+jobs:
+  deploy-funnel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy Airflow DAG & dbt Models
+        run: |
+          cp airflow/dags/funnel_etl.py $AIRFLOW_HOME/dags/
+          cd analytics && dbt deps && dbt run --models funnels
+      - name: Refresh Superset Dashboard
+        run: superset refresh-dashboards --dashboard-id=<funnel_dashboard_id>

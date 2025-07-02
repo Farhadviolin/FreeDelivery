@@ -1,0 +1,11 @@
+version: "3.0"
+stories:
+  - story: Bestellung annehmen
+    steps:
+      - intent: place_order
+        entities:
+          - dish: "Pizza Margherita"
+      - action: action_order_dish
+      - slot_was_set:
+          - dish: "Pizza Margherita"
+      - action: utter_order_confirmation

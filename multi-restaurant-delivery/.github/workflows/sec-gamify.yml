@@ -1,0 +1,18 @@
+on:
+  push:
+    paths:
+      - 'backend/security/**'
+jobs:
+  build-gamify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm ci && npm test
+      - run: docker build -t registry/sec-gamify:latest .
+  deploy-gamify:
+    needs: build-gamify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: azure/k8s-deploy@v1
+        with:
+          manifests: k8s/gamify-configmap.yaml

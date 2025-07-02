@@ -1,0 +1,10 @@
+{
+  "dashboard": {
+    "title": "Inventory Overview",
+    "panels": [
+      { "type": "table", "title": "Bestände", "targets": [ { "expr": "inventory_available" } ] },
+      { "type": "graph", "title": "Reservierungen", "targets": [ { "expr": "inventory_reserved" } ] },
+      { "type": "stat", "title": "Low Stock Alerts", "targets": [ { "expr": "sum(inventory_available < 5)" } ] }
+    ]
+  }
+}

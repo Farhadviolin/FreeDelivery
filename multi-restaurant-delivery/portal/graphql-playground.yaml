@@ -1,0 +1,4 @@
+playground:
+  endpoint: '/graphql'
+  settings:
+    request.credentials: 'include'

@@ -1,0 +1,4 @@
+- story: pizza order
+  steps:
+    - intent: order_pizza
+    - action: utter_ask_size

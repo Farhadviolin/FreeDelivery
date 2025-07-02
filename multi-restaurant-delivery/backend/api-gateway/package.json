@@ -1,0 +1,10 @@
+{
+  "name": "api-gateway",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -b",
+    "test": "jest",
+    "lint": "eslint src --ext .ts,.tsx"
+  }
+}

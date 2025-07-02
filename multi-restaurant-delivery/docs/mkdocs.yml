@@ -1,0 +1,15 @@
+site_name: Delivery-System Documentation
+nav:
+  - Architecture: architecture.md
+  - Deployment: deployment.md
+  - Security: security.md
+  - DevOps: devops.md
+  - APIs:
+      - Customer: api_reference/customer_api.md
+      - Partner: api_reference/partner_api.md
+      - Webhooks: api_reference/webhooks.md
+  - Runbooks:
+      - Onboarding: runbooks/onboarding.md
+      - Incident Response: runbooks/incident_response.md
+      - Escalation: runbooks/escalation.md
+  - Glossary: glossary.md

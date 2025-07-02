@@ -1,0 +1,13 @@
+groups:
+  - name: offline_loyalty
+    rules:
+      - alert: HighOfflineSyncFailRate
+        expr: increase(sync_failure_total[5m]) / increase(sync_attempt_total[5m]) > 0.1
+        for: 2m
+        annotations:
+          summary: "Offline Sync Failure Rate >10%"
+      - alert: HighRedeemErrors
+        expr: increase(redeem_points_failed_total[5m]) > 5
+        for: 1m
+        annotations:
+          summary: "Mehr als 5 fehlgeschlagene Prämien-Einlösungen in 5m"

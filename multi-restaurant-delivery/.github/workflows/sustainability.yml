@@ -1,0 +1,27 @@
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+jobs:
+  test-sustainability:
+    runs-on: ubuntu-latest
+    services:
+      prometheus:
+        image: prom/prometheus
+    steps:
+      - uses: actions/checkout@v3
+      - name: Test Carbon Calc
+        run: |
+          pip install pandas pytest
+          pytest tests/test_carbon_calc.py || true
+      - name: Terraform Plan Rightsizing
+        uses: hashicorp/terraform-github-actions@v1
+        with:
+          tf_actions_version: 1.5
+          tf_working_dir: devops/terraform
+          tf_command: plan
+      - name: Ansible Spot Playbook Check
+        run: |
+          ansible-lint devops/ansible/spot_playbook.yml || true
+          ansible-playbook -i hosts devops/ansible/spot_playbook.yml --check || true

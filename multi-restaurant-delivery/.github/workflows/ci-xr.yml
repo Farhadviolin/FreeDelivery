@@ -1,0 +1,22 @@
+name: CI XR Experience
+on:
+  push:
+    paths:
+      - 'xr/**'
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Test WebXR
+        run: |
+          npm ci --prefix xr/web
+          npm test --prefix xr/web
+      - name: Test AR-Server
+        run: |
+          pip install -r xr/server/requirements.txt
+          pytest xr/server/tests
+      - name: Build & Deploy
+        uses: azure/k8s-deploy@v4
+        with:
+          manifests: xr/k8s/web.yaml,xr/k8s/server.yaml

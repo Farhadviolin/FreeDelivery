@@ -1,0 +1,10 @@
+# Prometheus metrics for Zero Trust Security
+
+# mTLS Authenticated Connections
+istio_mtls_authentication_success_total 0
+
+# OPA Denied Requests
+opa_denied_requests_total 0
+
+# NetworkPolicy Blocks
+k8s_networkpolicy_block_total 0

@@ -1,0 +1,10 @@
+{
+  "dashboard": {
+    "title": "Federated Learning",
+    "panels": [
+      { "type": "graph", "title": "Round Duration", "targets": [ { "expr": "fed_round_duration_seconds" } ] },
+      { "type": "table", "title": "Client Updates", "targets": [ { "expr": "federated_client_updates_total" } ] },
+      { "type": "graph", "title": "Model Accuracy", "targets": [ { "expr": "federated_model_accuracy" } ] }
+    ]
+  }
+}

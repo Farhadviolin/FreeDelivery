@@ -1,0 +1,14 @@
+name: Accessibility CI
+on: [pull_request, push]
+jobs:
+  pa11y:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Pa11y
+        run: npm ci
+      - name: Run Pa11y on Storybook
+        run: |
+          npx start-storybook -p 6006 &
+          npx wait-on http://localhost:6006
+          npx pa11y-ci --config pa11yci.json

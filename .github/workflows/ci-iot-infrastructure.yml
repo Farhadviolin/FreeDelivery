@@ -1,0 +1,26 @@
+name: CI IoT Infrastructure
+on:
+  push:
+    paths:
+      - 'scripts/register_device.py'
+      - 'edge/**'
+      - 'iot/api.py'
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python & Node
+        run: pip install boto3 fastapi pytest
+      - name: Test Device Provisioning
+        run: pytest scripts/tests/test_register_device.py
+      - name: Build & Push Edge Images
+        run: |
+          docker build -t registry.delivery.com/mosquitto:latest edge/mosquitto
+          docker push registry.delivery.com/mosquitto:latest
+          docker build -t registry.delivery.com/telegraf:latest edge/telegraf
+          docker push registry.delivery.com/telegraf:latest
+      - name: Deploy IoT API
+        uses: delivery/k8s-deploy@v1
+        with:
+          manifests: k8s/iot-api-deployment.yaml

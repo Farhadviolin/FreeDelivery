@@ -1,0 +1,16 @@
+# Prometheus metrics for A/B SEO tests
+# Exemplarische Metrik-Definitionen für Recommendation-Service
+
+# Counter für Impressionen pro Variante
+seo_recommendation_impression_total{variant="A"} 123
+seo_recommendation_impression_total{variant="B"} 98
+
+# Counter für Klicks pro Variante
+seo_recommendation_click_total{variant="A"} 34
+seo_recommendation_click_total{variant="B"} 29
+
+# Histogramm für Verweildauer
+seo_recommendation_dwell_seconds_bucket{variant="A",le="5"} 10
+seo_recommendation_dwell_seconds_bucket{variant="A",le="10"} 20
+seo_recommendation_dwell_seconds_bucket{variant="B",le="5"} 8
+seo_recommendation_dwell_seconds_bucket{variant="B",le="10"} 15

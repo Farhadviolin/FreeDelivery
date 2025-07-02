@@ -1,0 +1,16 @@
+# edge-deployment.yaml (KubeEdge PodSpec)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: menu-cache
+  labels: {app: "menu-cache"}
+spec:
+  containers:
+  - name: redis
+    image: bitnami/redis:7
+    ports: [{containerPort: 6379}]
+  nodeSelector:
+    edge: "true"
+  tolerations:
+  - key: "edge-node"
+    operator: "Exists"

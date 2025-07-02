@@ -1,0 +1,8 @@
+{
+  "title": "Notification Orchestration",
+  "panels": [
+    { "type": "stat", "title": "Workflow Executions", "targets": [{"expr": "temporal_workflow_completed_total"}] },
+    { "type": "stat", "title": "Task Latency", "targets": [{"expr": "temporal_task_latency"}] },
+    { "type": "stat", "title": "Failure Rates", "targets": [{"expr": "temporal_workflow_failed_total"}] }
+  ]
+}

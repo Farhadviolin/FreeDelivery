@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/frontend/web-poc"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pip"
+    directory: "/personal"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"

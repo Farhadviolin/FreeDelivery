@@ -1,0 +1,10 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spire-server
+spec:
+  template:
+    spec:
+      containers:
+        - name: spire-server
+          image: spiffe/spire-server:v1.3.0

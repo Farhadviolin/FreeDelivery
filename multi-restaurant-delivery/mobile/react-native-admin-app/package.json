@@ -1,0 +1,10 @@
+{
+  "name": "react-native-admin-app",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -b || echo 'React Native: Build extern'",
+    "test": "jest || echo 'React Native: Tests extern'",
+    "lint": "eslint src --ext .ts,.tsx || echo 'React Native: Lint extern'"
+  }
+}

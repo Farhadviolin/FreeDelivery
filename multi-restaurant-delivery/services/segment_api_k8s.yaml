@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: segment-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: segment-api
+  template:
+    metadata:
+      labels:
+        app: segment-api
+    spec:
+      containers:
+      - name: segment-api
+        image: your-segment-api-image
+        ports:
+        - containerPort: 8000

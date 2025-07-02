@@ -1,0 +1,6 @@
+groups:
+  - name: spot-usage
+    rules:
+      - record: aws_spot_node_ratio
+        expr: sum(kube_node_labels{label_lifecycle="spot"}) 
+              / sum(kube_node_labels{label_lifecycle=~"spot|on-demand"})

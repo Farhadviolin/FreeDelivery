@@ -1,0 +1,22 @@
+name: CI Edge Model Build
+on:
+  push:
+    paths:
+      - 'models/**'
+jobs:
+  build-edge-model:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        run: pip install tensorflow tensorflow-model-optimization
+      - name: Build TFLite Model
+        run: python scripts/build_edge_model.py
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: edge_model
+          path: build/edge_model.tflite
+      - name: Publish to CDN
+        run: |
+          aws s3 cp build/edge_model.tflite s3://cdn.delivery.com/edge_models/v1.0.0.tflite

@@ -1,0 +1,14 @@
+global:
+  resolve_timeout: 5m
+route:
+  group_by: ['alertname', 'service']
+  group_wait: 30s
+  receiver: 'pagerduty'
+receivers:
+  - name: 'pagerduty'
+    pagerduty_configs:
+      - service_key: '{{ .CommonLabels.service }}-pd-key'
+        severity: '{{ .CommonLabels.severity }}'
+  - name: 'webhook-sla-api'
+    webhook_configs:
+      - url: 'https://sla.delivery.com/alerts'

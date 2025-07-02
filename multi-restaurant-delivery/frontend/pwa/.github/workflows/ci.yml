@@ -1,0 +1,15 @@
+pwa-build:
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v3
+    - run: npm ci
+    - run: npm run build
+pwa-deploy:
+  needs: pwa-build
+  runs-on: ubuntu-latest
+  steps:
+    - uses: azure/static-web-apps-deploy@v1
+      with:
+        azure_static_web_apps_api_token: ${{ secrets.AZURE_TOKEN }}
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        action: "upload"

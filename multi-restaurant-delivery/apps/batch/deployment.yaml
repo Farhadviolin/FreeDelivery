@@ -1,0 +1,16 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: batch-worker }
+spec:
+  replicas: 3
+  template:
+    metadata: { labels: { app: batch-worker } }
+    spec:
+      tolerations:
+        - key: "spot"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      containers:
+        - name: worker
+          image: registry.delivery.com/batch-worker:latest

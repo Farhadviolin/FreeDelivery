@@ -1,0 +1,19 @@
+datasources:
+  eval_data:
+    class_name: Datasource
+    execution_engine:
+      class_name: PandasExecutionEngine
+    data_connectors:
+      default_runtime_data_connector:
+        class_name: RuntimeDataConnector
+        runtime_parameters:
+          batch_data: null
+        batch_identifiers: [default_identifier_name]
+expectations:
+  - expectation_suite_name: eval_suite
+    expectations:
+      - expect_column_values_to_not_be_null:
+          column: prediction
+      - expect_column_values_to_be_in_set:
+          column: gender
+          value_set: [Male, Female]

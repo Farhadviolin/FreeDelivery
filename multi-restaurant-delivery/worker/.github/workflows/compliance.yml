@@ -1,0 +1,21 @@
+name: Compliance & Audit Checks
+on:
+  push:
+    paths:
+      - 'worker/**'
+jobs:
+  compliance-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Bandit (Python SAST)
+        run: |
+          pip install bandit
+          bandit -r worker/
+      - name: Run npm audit (Node.js SCA)
+        run: |
+          cd worker/bullmq && npm install && npm audit --audit-level=high
+      - name: Check OpenAPI Spec
+        run: |
+          pip install openapi-spec-validator
+          openapi-spec-validator worker/api_openapi.yaml

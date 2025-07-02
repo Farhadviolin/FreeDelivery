@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: testdb
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+    ports: ['5432:5432']
+  api:
+    image: registry.delivery.com/api:${CI_SHA}
+    environment:
+      DATABASE_URL: postgres://test:test@postgres:5432/testdb
+    depends_on: ['postgres']
+  web:
+    image: registry.delivery.com/web:${CI_SHA}
+    ports: ['3000:3000']
+    depends_on: ['api']

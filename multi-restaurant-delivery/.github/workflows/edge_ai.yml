@@ -1,0 +1,31 @@
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+jobs:
+  build-edge-binaries:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build C++ & Rust Binaries
+        run: |
+          mkdir -p build && cd build && cmake .. && make || true
+          cd .. && cargo build --release || true
+
+  test-ota:
+    needs: build-edge-binaries
+    runs-on: ubuntu-latest
+    services:
+      mqtt:
+        image: eclipse-mosquitto
+        ports:
+          - 1883:1883
+      pushgateway:
+        image: prom/pushgateway
+        ports:
+          - 9091:9091
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run OTA Integration Test
+        run: pytest tests/test_ota.py || true

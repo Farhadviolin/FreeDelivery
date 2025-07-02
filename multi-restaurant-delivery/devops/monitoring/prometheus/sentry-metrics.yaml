@@ -1,0 +1,13 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: sentry-metrics
+spec:
+  groups:
+    - name: sentry
+      rules:
+        - alert: NewErrorsSpike
+          expr: sentry_events_total{level="error"} > 10
+          for: 5m
+          annotations:
+            summary: "Anstieg von Sentry-Fehlern"

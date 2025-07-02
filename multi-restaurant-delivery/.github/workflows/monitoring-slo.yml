@@ -1,0 +1,22 @@
+on:
+  push:
+    paths:
+      - 'monitoring/prometheus-slo-rules.yaml'
+jobs:
+  lint-rules:
+    runs-on: ubuntu-latest
+    container: prom/prometheus:v2.40
+    steps:
+      - uses: actions/checkout@v3
+      - run: promtool check rules monitoring/prometheus-slo-rules.yaml
+  deploy-monitoring:
+    needs: lint-rules
+    runs-on: ubuntu-latest
+    container: dtzar/helm-kubectl:latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+      - run: helm repo add grafana https://grafana.github.io/helm-charts
+      - run: helm upgrade --install prometheus prometheus-community/prometheus --version 45.4.0
+      - run: helm upgrade --install grafana grafana/grafana --version 10.1.0
+      - run: kubectl apply -f monitoring/prometheus-slo-rules.yaml

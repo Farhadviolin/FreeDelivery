@@ -1,0 +1,10 @@
+groups:
+  - name: predictive_maintenance
+    rules:
+      - alert: VehicleAnomalyDetected
+        expr: increase(pm_anomalies_total[1h]) > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Anomaly detected for vehicle {{ $labels.vehicle_id }}"

@@ -1,0 +1,10 @@
+{
+  "dashboard": {
+    "title": "Load Test Results",
+    "panels": [
+      { "type": "graph", "title": "HTTP Req Duration p95", "targets":[{ "extented":true }] },
+      { "type": "graph", "title": "Error Rate", "targets":[{ "expr":"http_req_failed" }] },
+      { "type": "graph", "title": "VU Count", "targets":[{"expr":"k6_vus"}] }
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+version: "3.0"
+nlu:
+  - intent: greet
+    examples: |
+      - Hallo
+      - Hi
+      - Guten Tag
+      - Servus
+  - intent: ask_menu
+    examples: |
+      - Was gibt es zu essen?
+      - Zeig mir das Menü
+      - Welche Gerichte habt ihr?
+  - intent: place_order
+    examples: |
+      - Ich möchte eine [Pizza Margherita](dish) bestellen
+      - Bestelle bitte [Sushi](dish)
+      - Ich hätte gern [Pasta](dish)
+  - intent: check_status
+    examples: |
+      - Wo ist meine Bestellung?
+      - Wann kommt mein Essen?
+      - Status meiner Bestellung

@@ -1,0 +1,22 @@
+name: Monorepo-Baseline
+
+on: [push, pull_request]
+
+jobs:
+  install-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'yarn'
+      - name: Install Dependencies
+        run: yarn install --immutable
+      - name: Lint
+        run: yarn lint
+      - name: Build
+        run: yarn build
+      - name: Test
+        run: yarn test

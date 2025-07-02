@@ -1,0 +1,16 @@
+# Wallet Monitoring Metrics (Prometheus)
+
+# Counter for failed NFC scans
+type: counter
+help: 'Total number of failed NFC scans in the wallet app.'
+name: wallet_nfc_scan_failure_total
+
+# Counter for failed QR/Barcode scans
+type: counter
+help: 'Total number of failed QR/Barcode scans in the wallet app.'
+name: wallet_qr_scan_failure_total
+
+# Counter for permission denied events
+type: counter
+help: 'Total number of permission denied events in the wallet app.'
+name: wallet_permission_denied_total

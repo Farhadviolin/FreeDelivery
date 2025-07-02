@@ -1,0 +1,15 @@
+jobs:
+  build-stream:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm ci
+      - run: npm run lint && npm run test
+      - run: docker build -t registry/stream-processor:latest .
+  deploy-stream:
+    needs: build-stream
+    runs-on: ubuntu-latest
+    steps:
+      - uses: dtzar/helm-kubectl@v1
+      - run: helm upgrade --install stream-processor ./helm/stream-processor
+      - run: helm upgrade --install grafana grafana/grafana --version 9.2.0

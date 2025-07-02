@@ -1,0 +1,7 @@
+# ota_rollout.yml
+- hosts: edge
+  tasks:
+    - name: Publish model URL
+      mqtt_publish:
+        topic: "edge/ota/update"
+        payload: "https://models.delivery.com/v2/model.tflite"

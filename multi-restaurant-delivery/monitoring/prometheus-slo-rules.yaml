@@ -1,0 +1,12 @@
+groups:
+  - name: service-slo
+    rules:
+      - record: service:error_rate:ratio
+        expr: sum(rate(http_requests_total{code=~"5.."}[5m])) 
+              / sum(rate(http_requests_total[5m]))
+      - alert: HighErrorRate
+        expr: service:error_rate:ratio > 0.01
+        for: 5m
+        labels: { severity: "critical" }
+        annotations:
+          summary: "Error rate >1% for 5m"

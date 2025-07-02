@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: envoy-tls-config
+data:
+  tls_profile:pq_tls.json: |
+    {
+      "name": "pq_tls",
+      "tls_params": {
+        "tls_maximum_protocol_version": "TLSv1_3",
+        "cipher_suites": ["TLS_AES_256_GCM_SHA384", "TLS_AES_128_GCM_SHA256"],
+        "post_quantum_kems": ["kyber_768"],
+        "post_quantum_signatures": ["dilithium_3"]
+      }
+    }

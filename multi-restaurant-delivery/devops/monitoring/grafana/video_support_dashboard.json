@@ -1,0 +1,26 @@
+{
+  "title": "Video Support & Live-Assist KPIs",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Active Video Sessions",
+      "targets": [{"expr": "video_support_session_total"}]
+    },
+    {
+      "type": "histogram",
+      "title": "Session Duration (s)",
+      "targets": [{"expr": "video_support_session_duration_seconds_bucket"}]
+    },
+    {
+      "type": "stat",
+      "title": "First Call Resolution",
+      "targets": [{"expr": "video_support_fcr_total"}]
+    },
+    {
+      "type": "bargauge",
+      "title": "User Satisfaction (1-5)",
+      "targets": [{"expr": "video_support_satisfaction_total"}]
+    }
+  ],
+  "time": {"from": "now-24h", "to": "now"}
+}

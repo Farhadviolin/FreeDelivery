@@ -1,0 +1,10 @@
+groups:
+  - name: fraud
+    rules:
+      - alert: HighFraudScore
+        expr: fraud_score > 0.8
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Transaction {{ $labels.tx_id }} scored {{ $value }}"

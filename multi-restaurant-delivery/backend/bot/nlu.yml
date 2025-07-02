@@ -1,0 +1,6 @@
+version: '3.6'
+nlu:
+  - intent: order_status
+    examples: |
+      - What's my order status?
+      - Track order [1234]

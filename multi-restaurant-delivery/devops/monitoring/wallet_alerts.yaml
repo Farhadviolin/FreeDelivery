@@ -1,0 +1,27 @@
+groups:
+  - name: wallet-monitoring
+    rules:
+      - alert: WalletNfcScanFailure
+        expr: increase(wallet_nfc_scan_failure_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "NFC-Scan-Fehler in Wallet-App"
+          description: "Mindestens ein NFC-Scan ist in den letzten 5 Minuten fehlgeschlagen."
+      - alert: WalletQrScanFailure
+        expr: increase(wallet_qr_scan_failure_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "QR/Barcode-Scan-Fehler in Wallet-App"
+          description: "Mindestens ein QR/Barcode-Scan ist in den letzten 5 Minuten fehlgeschlagen."
+      - alert: WalletPermissionDenied
+        expr: increase(wallet_permission_denied_total[5m]) > 2
+        for: 2m
+        labels:
+          severity: info
+        annotations:
+          summary: "Wallet-Permissions wiederholt abgelehnt"
+          description: "Mehr als zweimal wurde eine Berechtigung in der Wallet-App abgelehnt."

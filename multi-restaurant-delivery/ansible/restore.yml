@@ -1,0 +1,22 @@
+- name: Disaster Recovery Drill
+  hosts: localhost
+  vars_files:
+    - ../infra/vars.yml
+  tasks:
+    - name: Restore Velero Backup
+      command: >
+        velero restore create drill-restore --from-backup dr_backup_2025-07-01
+    - name: Wait for pods ready
+      kubernetes.core.k8s_info:
+        kind: Pod
+        namespace: delivery
+      register: pod_info
+      until: pod_info.resources | selectattr('status.phase','equalto','Running') | list | length > 5
+      retries: 20
+      delay: 30
+    - name: Verify PostgreSQL PITR
+      shell: |
+        aws s3 cp s3://delivery-backups/pg-base.tar.gz .
+        tar xzf pg-base.tar.gz -C /var/lib/postgresql/data
+        pg_ctl start -D /var/lib/postgresql/data
+        psql -c "SELECT 1;"

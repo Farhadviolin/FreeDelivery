@@ -1,0 +1,16 @@
+{
+  "welcome": "¡Bienvenido a KiLiefer!",
+  "login": "Iniciar sesión",
+  "logout": "Cerrar sesión",
+  "register": "Registrarse",
+  "restaurants": "Restaurantes",
+  "orders": "Pedidos",
+  "cart": "Carrito",
+  "language": "Idioma",
+  "dark_mode": "Modo oscuro",
+  "payment": "Pago",
+  "pay_now": "Pagar ahora",
+  "processing": "Procesando...",
+  "request_2fa": "Solicitar 2FA",
+  "verify_2fa": "Verificar 2FA"
+}

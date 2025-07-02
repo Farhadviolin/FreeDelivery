@@ -1,0 +1,81 @@
+name: Load Tests
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'e2ee-gateway/**'
+      - 'order-service/**'
+      - 'loyalty-integration/**'
+      - 'sync-service/**'
+
+jobs:
+  load-test:
+    runs-on: ubuntu-latest
+    container:
+      image: loadimpact/k6:latest
+    env:
+      E2EE_URL: ${{ secrets.E2EE_URL }}
+      ORDER_URL: ${{ secrets.ORDER_URL }}
+      LOYALTY_URL: ${{ secrets.LOYALTY_URL }}
+      SYNC_URL: ${{ secrets.SYNC_URL }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run k6 Load Test
+        run: |
+          k6 run loadtests/script.js --out influxdb=http://influxdb:8086 \
+            --out json=summary.json
+      - name: Upload summary
+        uses: actions/upload-artifact@v3
+        with:
+          name: k6-summary
+          path: summary.json
+      - name: Analyze k6 Summary
+        run: |
+          node loadtests/analyze-summary.js
+      - name: Upload k6 Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: k6-report
+          path: k6-report.md
+      - name: Notify Slack on Failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author
+          author_name: 'CI LoadTests'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Send k6 Report to Slack
+        if: always()
+        run: |
+          REPORT=$(cat k6-report.md)
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"'$REPORT'"}' $SLACK_WEBHOOK_URL
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Upload k6 Report to S3
+        if: always()
+        run: |
+          aws s3 cp k6-report.md s3://$S3_BUCKET/k6-reports/${{ github.run_id }}-k6-report.md
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: 'eu-central-1'
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+      - name: Send k6 Report Link to Slack
+        if: always()
+        run: |
+          REPORT_URL="https://$S3_BUCKET.s3.eu-central-1.amazonaws.com/k6-reports/${{ github.run_id }}-k6-report.md"
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"k6-Report: '$REPORT_URL'"}' $SLACK_WEBHOOK_URL
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+      - name: Post k6 Report Link as PR Comment
+        if: github.event_name == 'pull_request'
+        run: |
+          REPORT_URL="https://$S3_BUCKET.s3.eu-central-1.amazonaws.com/k6-reports/${{ github.run_id }}-k6-report.md"
+          gh pr comment ${{ github.event.pull_request.number }} --body "k6-Report: $REPORT_URL"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}

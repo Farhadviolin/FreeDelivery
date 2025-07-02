@@ -1,0 +1,28 @@
+name: CI Real-Time Personalization
+on: [push]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python & Protobuf
+        run: |
+          pip install confluent-kafka feast grpcio grpcio-tools pytest
+          python -m grpc_tools.protoc -I./proto --python_out=./app --grpc_python_out=./app proto/personalization.proto
+      - name: Test Streams App
+        run: pytest streams/tests
+      - name: Build & Push Docker Images
+        run: |
+          docker build -t registry.delivery.com/streams-app:${{github.sha}} streams
+          docker push registry.delivery.com/streams-app:${{github.sha}}
+          docker build -t registry.delivery.com/grpc-gateway:${{github.sha}} app
+          docker push registry.delivery.com/grpc-gateway:${{github.sha}}
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+      - name: Deploy to K8s
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+        run: |
+          kubectl apply -f k8s/real-time-personalization.yaml

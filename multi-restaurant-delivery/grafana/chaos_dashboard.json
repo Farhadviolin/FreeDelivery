@@ -1,0 +1,9 @@
+{
+  "dashboard": {
+    "title": "Chaos Engineering",
+    "panels": [
+      { "type":"graph","title":"Service Availability","targets":[{"expr":"up{job='order-service'}"}] },
+      { "type":"graph","title":"Error Rate During Experiment","targets":[{"expr":"rate(http_requests_total{status=~'5..'}[1m])"}] }
+    ]
+  }
+}

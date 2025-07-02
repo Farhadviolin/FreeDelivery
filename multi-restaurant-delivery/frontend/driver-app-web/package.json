@@ -1,0 +1,10 @@
+{
+  "name": "driver-app-web",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -b",
+    "test": "jest",
+    "lint": "eslint ."
+  }
+}

@@ -1,0 +1,16 @@
+# surge-service GitHub Actions CI/CD
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      - name: confluentinc/cp-kafka:latest
+      - name: redis:7
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm ci
+      - run: npm run test
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - run: helm upgrade --install surge ./helm/surge

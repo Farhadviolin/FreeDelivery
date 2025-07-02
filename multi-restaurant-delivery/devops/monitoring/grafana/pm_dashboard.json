@@ -1,0 +1,9 @@
+{
+  "dashboard": {
+    "title": "Predictive Maintenance",
+    "panels": [
+      { "type":"graph","title":"Avg Failure Risk","targets":[{"expr":"failure_risk"}] },
+      { "type":"table","title":"High-Risk Vehicles","targets":[{"expr":"failure_risk > 0.8"}] }
+    ]
+  }
+}

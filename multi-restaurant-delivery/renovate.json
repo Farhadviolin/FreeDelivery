@@ -1,0 +1,14 @@
+{
+  "extends": ["config:base"],
+  "packageRules": [
+    {
+      "matchManagers": ["npm", "pip_requirements"],
+      "schedule": ["before 3am on monday"]
+    }
+  ],
+  "separateMajorReleases": true,
+  "postUpgradeTasks": {
+    "commands": ["npm test", "pytest", "mvn test"],
+    "fileFilters": ["**/package.json", "**/requirements.txt", "**/pom.xml"]
+  }
+}

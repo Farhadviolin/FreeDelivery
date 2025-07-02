@@ -1,0 +1,8 @@
+project_name = "delivery-platform"
+account_id   = "cf-account-id"
+upload = { 
+  format = "service-worker" 
+}
+[routes]
+pattern = "*/api/*"
+caching = "no-cache"

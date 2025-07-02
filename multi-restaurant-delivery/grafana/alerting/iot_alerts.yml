@@ -1,0 +1,11 @@
+groups:
+- name: SmartKitchenAlerts
+  rules:
+  - alert: HighTemperature
+    expr: aws_iot_temperature > 10
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: 'Device temperature too high'
+      description: 'Temperature reported by device is above threshold.'

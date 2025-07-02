@@ -1,0 +1,54 @@
+name: Security Testing
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 2 * * SUN'  # Wöchentlich
+
+jobs:
+  zap_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Start Application
+        run: docker-compose up -d app
+      - name: Run OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.7.0
+        with:
+          target: 'http://localhost:8080'
+      - name: Upload ZAP Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: zap-report
+          path: zap_report.html
+
+  trivy_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Scan Docker Image with Trivy
+        run: |
+          docker build -t delivery/app:latest .
+          trivy image --exit-code 1 --severity HIGH,CRITICAL delivery/app:latest
+
+  exploit_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Gauntlt (Exploit Scenarios)
+        run: gauntlt -s features/
+
+  report_and_notify:
+    needs: [zap_scan, trivy_scan, exploit_tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compile Findings
+        run: |
+          python compliance/scripts/compile_security_findings.py
+      - name: Create Jira Tickets
+        run: python compliance/scripts/create_jira_tickets.py
+      - name: Send Slack Notification
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          channel-id: ${{ secrets.SLACK_CHANNEL }}
+          slack-message: 'Neue Security-Findings wurden erstellt. Bitte prüfen.'

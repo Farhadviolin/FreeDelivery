@@ -1,0 +1,9 @@
+{
+  "dashboard": {
+    "title": "Archive Lifecycle",
+    "panels": [
+      { "type":"graph","title":"Export Duration","targets":[{"expr":"archive_export_duration_seconds"}] },
+      { "type":"graph","title":"S3 Object Age","targets":[{"expr":"s3_object_age_seconds"}] }
+    ]
+  }
+}

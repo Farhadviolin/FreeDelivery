@@ -1,0 +1,19 @@
+{
+  "name": "database",
+  "version": "0.1.0",
+  "main": "ormconfig.ts",
+  "scripts": {
+    "typeorm": "typeorm-ts-node-commonjs -d ormconfig.ts",
+    "migration:run": "yarn typeorm migration:run",
+    "migration:generate": "yarn typeorm migration:generate",
+    "seed": "ts-node seeders/seed-restaurants.ts"
+  },
+  "dependencies": {
+    "typeorm": "^0.3.0",
+    "pg": "^8.8.0"
+  },
+  "devDependencies": {
+    "ts-node": "^10.0.0",
+    "typescript": "^5.0.0"
+  }
+}

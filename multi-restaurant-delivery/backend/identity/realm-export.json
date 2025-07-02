@@ -1,0 +1,24 @@
+{
+  "realm": "ki-lief",
+  "clients": [
+    {
+      "clientId": "web-app",
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "redirectUris": ["https://app.kilief.com/*"],
+      "attributes": { "post.logout.redirect.uris": "*" }
+    }
+  ],
+  "identityProviders": [
+    {
+      "alias": "saml-idp",
+      "providerId": "saml",
+      "enabled": true,
+      "config": {
+        "singleSignOnServiceUrl": "https://partner-idp/sso",
+        "singleLogoutServiceUrl": "https://partner-idp/slo",
+        "nameIDPolicyFormat": "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
+      }
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dsar-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: dsar-api
+  template:
+    metadata:
+      labels:
+        app: dsar-api
+    spec:
+      containers:
+      - name: dsar-api
+        image: your-dsar-api-image
+        ports:
+        - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dsar-api
+spec:
+  selector:
+    app: dsar-api
+  ports:
+  - protocol: TCP
+    port: 8000
+    targetPort: 8000

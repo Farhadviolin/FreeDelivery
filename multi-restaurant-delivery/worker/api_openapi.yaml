@@ -1,0 +1,29 @@
+openapi: 3.0.0
+info:
+  title: Worker Task API
+  version: 1.0.0
+paths:
+  /enqueue-order:
+    post:
+      summary: Enqueue a new order processing task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                order_id:
+                  type: integer
+      responses:
+        '200':
+          description: Task enqueued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  task_id:
+                    type: string
+                  status:
+                    type: string
