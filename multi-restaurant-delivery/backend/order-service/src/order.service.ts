@@ -1,7 +1,7 @@
 import { CurrencyService } from './currency.service';
 
 export class OrderService {
-  constructor(private currencySvc: CurrencyService) {}
+  constructor(private readonly currencySvc: CurrencyService) {}
 
   async createOrder(priceBase: number, userRegionCurrency: string) {
     const { amount, currency } = await this.currencySvc.convert(priceBase, userRegionCurrency);

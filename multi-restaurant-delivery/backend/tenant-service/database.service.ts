@@ -1,5 +1,5 @@
 // database.service.ts
-getConnection(tenantId: string) {
+export function getConnection(tenantId: string) {
   return this.dataSource.createQueryRunner({
     defaultSchema: `tenant_${tenantId}`
   });

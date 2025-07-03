@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/router';
-import i18n from '../../packages/ui/src/i18n';
+import i18n from '../../../packages/ui/src/i18n';
 
 const languages = [
   { code: 'de', label: 'Deutsch' },

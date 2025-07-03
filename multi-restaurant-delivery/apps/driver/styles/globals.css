@@ -1,0 +1,6 @@
+/* Global styles for driver app */
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #fff;
+}
