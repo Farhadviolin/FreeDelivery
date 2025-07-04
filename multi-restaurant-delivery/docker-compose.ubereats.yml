@@ -1,0 +1,377 @@
+version: '3.8'
+
+services:
+  # Database Services
+  postgres:
+    image: postgres:15-alpine
+    container_name: ubereats_postgres
+    environment:
+      POSTGRES_DB: ubereats_dev
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev123
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    networks:
+      - ubereats_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dev -d ubereats_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for Caching & Sessions
+  redis:
+    image: redis:7-alpine
+    container_name: ubereats_redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass dev123
+    volumes:
+      - redis_data:/data
+    networks:
+      - ubereats_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Elasticsearch for Search
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: ubereats_elasticsearch
+    environment:
+      - node.name=es-node-1
+      - cluster.name=ubereats-cluster
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - ubereats_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Kibana for Elasticsearch UI
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: ubereats_kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=dev123
+    ports:
+      - "5601:5601"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - ubereats_network
+
+  # RabbitMQ for Message Queue
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: ubereats_rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: dev
+      RABBITMQ_DEFAULT_PASS: dev123
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - ubereats_network
+
+  # MinIO for File Storage (S3 Compatible)
+  minio:
+    image: minio/minio
+    container_name: ubereats_minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: dev
+      MINIO_ROOT_PASSWORD: dev123456
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - ubereats_network
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./backend/api-gateway
+      dockerfile: Dockerfile
+    container_name: ubereats_api_gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://dev:dev123@postgres:5432/ubereats_dev
+      - REDIS_URL=redis://:dev123@redis:6379
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - RABBITMQ_URL=amqp://dev:dev123@rabbitmq:5672
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_ACCESS_KEY=dev
+      - MINIO_SECRET_KEY=dev123456
+      - JWT_SECRET=your-super-secret-jwt-key-here
+      - STRIPE_SECRET_KEY=sk_test_...
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    volumes:
+      - ./backend/api-gateway:/app
+      - /app/node_modules
+    networks:
+      - ubereats_network
+    restart: unless-stopped
+
+  # Search Service
+  search-service:
+    build:
+      context: ./backend/search-service
+      dockerfile: Dockerfile
+    container_name: ubereats_search_service
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=development
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - REDIS_URL=redis://:dev123@redis:6379
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend/search-service:/app
+      - /app/node_modules
+    networks:
+      - ubereats_network
+    restart: unless-stopped
+
+  # Cart Service
+  cart-service:
+    build:
+      context: ./backend/cart-service
+      dockerfile: Dockerfile
+    container_name: ubereats_cart_service
+    ports:
+      - "3002:3000"
+    environment:
+      - NODE_ENV=development
+      - REDIS_URL=redis://:dev123@redis:6379
+      - DATABASE_URL=postgresql://dev:dev123@postgres:5432/ubereats_dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend/cart-service:/app
+      - /app/node_modules
+    networks:
+      - ubereats_network
+    restart: unless-stopped
+
+  # Order Service
+  order-service:
+    build:
+      context: ./backend/order-service
+      dockerfile: Dockerfile
+    container_name: ubereats_order_service
+    ports:
+      - "3003:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://dev:dev123@postgres:5432/ubereats_dev
+      - REDIS_URL=redis://:dev123@redis:6379
+      - RABBITMQ_URL=amqp://dev:dev123@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend/order-service:/app
+      - /app/node_modules
+    networks:
+      - ubereats_network
+    restart: unless-stopped
+
+  # Notification Service
+  notification-service:
+    build:
+      context: ./backend/notification-service
+      dockerfile: Dockerfile
+    container_name: ubereats_notification_service
+    ports:
+      - "3004:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://dev:dev123@postgres:5432/ubereats_dev
+      - REDIS_URL=redis://:dev123@redis:6379
+      - RABBITMQ_URL=amqp://dev:dev123@rabbitmq:5672
+      - TWILIO_ACCOUNT_SID=your_twilio_sid
+      - TWILIO_AUTH_TOKEN=your_twilio_token
+      - SENDGRID_API_KEY=your_sendgrid_key
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend/notification-service:/app
+      - /app/node_modules
+    networks:
+      - ubereats_network
+    restart: unless-stopped
+
+  # Frontend Applications
+  customer-app:
+    build:
+      context: ./frontend/apps/customer
+      dockerfile: Dockerfile.dev
+    container_name: ubereats_customer_app
+    ports:
+      - "3010:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+      - NEXT_PUBLIC_MAPBOX_TOKEN=your_mapbox_token
+      - NEXT_PUBLIC_GOOGLE_MAPS_KEY=your_google_maps_key
+    volumes:
+      - ./frontend/apps/customer:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - ubereats_network
+    restart: unless-stopped
+
+  driver-app:
+    build:
+      context: ./frontend/apps/driver
+      dockerfile: Dockerfile.dev
+    container_name: ubereats_driver_app
+    ports:
+      - "3011:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+      - NEXT_PUBLIC_MAPBOX_TOKEN=your_mapbox_token
+    volumes:
+      - ./frontend/apps/driver:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - ubereats_network
+    restart: unless-stopped
+
+  admin-app:
+    build:
+      context: ./frontend/apps/admin
+      dockerfile: Dockerfile.dev
+    container_name: ubereats_admin_app
+    ports:
+      - "3012:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+    volumes:
+      - ./frontend/apps/admin:/app
+      - /app/node_modules
+      - /app/.next
+    networks:
+      - ubereats_network
+    restart: unless-stopped
+
+  # Monitoring & Observability
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ubereats_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./devops/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - ubereats_network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ubereats_grafana
+    ports:
+      - "3013:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./devops/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./devops/monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - ubereats_network
+
+  # Development Tools
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: ubereats_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@ubereats.dev
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - ubereats_network
+
+networks:
+  ubereats_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+  minio_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  pgadmin_data:
+    driver: local

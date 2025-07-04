@@ -14,7 +14,40 @@
     "format": "prettier --write .",
     "prepare": "husky install",
     "lint-staged": "lint-staged",
-    "check:all": "eslint \"src/**/*.{js,ts,tsx}\" --fix && prettier --write \"src/**/*.{js,ts,tsx,json,md}\" && jest --coverage && snyk test --severity-threshold=high"
+    "check:all": "eslint \"src/**/*.{js,ts,tsx}\" --fix && prettier --write \"src/**/*.{js,ts,tsx,json,md}\" && jest --coverage && snyk test --severity-threshold=high",
+    
+    "ubereats:integrate-all": "chmod +x scripts/ubereats-integration.sh && ./scripts/ubereats-integration.sh",
+    "ubereats:setup": "npm run ubereats:install-deps && npm run ubereats:init-services",
+    "ubereats:install-deps": "npm install @elastic/elasticsearch ioredis socket.io-client react-native-maps mapbox-gl leaflet react-leaflet",
+    "ubereats:init-services": "npm run db:migrate && npm run db:seed && npm run elasticsearch:init",
+    "dev:ubereats": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:search\"",
+    "dev:backend": "concurrently \"cd backend/api-gateway && npm run dev\" \"cd backend/search-service && npm run dev\" \"cd backend/cart-service && npm run dev\"",
+    "dev:frontend": "concurrently \"npm run dev:customer\" \"npm run dev:driver\" \"npm run dev:admin\"",
+    "dev:search": "cd backend/search-service && npm run dev",
+    
+    "db:migrate": "cd database && npm run migrate",
+    "db:seed": "cd database && npm run seed:ubereats",
+    "elasticsearch:init": "node scripts/init-elasticsearch.js",
+    "generate:types": "cd backend && npm run generate:types",
+    
+    "test:ubereats": "npm run test:unit && npm run test:integration && npm run test:e2e",
+    "test:unit": "jest --config jest.config.js",
+    "test:integration": "jest --config jest.integration.config.js",
+    "test:e2e": "playwright test",
+    
+    "build:ubereats": "npm run build:backend && npm run build:frontend",
+    "build:backend": "cd backend && npm run build:all",
+    "build:frontend": "npm run build:customer && npm run build:driver && npm run build:admin",
+    "build:customer": "cd apps/customer && npm run build",
+    "build:driver": "cd apps/driver && npm run build", 
+    "build:admin": "cd apps/admin && npm run build",
+    
+    "deploy:ubereats": "npm run build:ubereats && npm run docker:build && npm run k8s:deploy",
+    "docker:build": "docker-compose -f docker-compose.ubereats.yml build",
+    "k8s:deploy": "kubectl apply -f k8s/ubereats/",
+    
+    "storybook": "storybook dev -p 6006",
+    "storybook:build": "storybook build"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.28.0",
